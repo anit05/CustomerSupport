@@ -64,6 +64,12 @@ namespace CustomerSupport.API.ExceptionHandling
           message = conflictException.Message;
           break;
 
+        // Occurs when Auth Service throws UnauthorizedException
+        case UnauthorizedException unauthorizedException:
+          statusCode = StatusCodes.Status401Unauthorized;
+          message = unauthorizedException.Message;
+          break;
+
         // Occurs when Entity Framework Core detects that
         // another request has already modified the same database record.
         case DbUpdateConcurrencyException:
