@@ -4,17 +4,19 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CustomerSupport.Application.Extensions
 {
-  public static class ApplicationServiceExtensions
-  {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static class ApplicationServiceExtensions
     {
-      services.AddScoped<IProductService, ProductService>();
-      services.AddScoped<ITicketCategoryService, TicketCategoryService>();
-      services.AddScoped<IMasterDataService, MasterDataService>();
-      services.AddScoped<IAuthService, AuthService>();
-      services.AddScoped<ITicketService, TicketService>();
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+        {
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ITicketCategoryService, TicketCategoryService>();
+            services.AddScoped<IMasterDataService, MasterDataService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ITicketService, TicketService>();
 
-      return services;
+            // Register the Ticket Attachment Application Service.
+            services.AddScoped<ITicketAttachmentService, TicketAttachmentService>();
+            return services;
+        }
     }
-  }
 }
