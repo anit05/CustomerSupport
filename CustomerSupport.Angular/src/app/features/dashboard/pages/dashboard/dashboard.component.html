@@ -1,0 +1,94 @@
+<div class="container-fluid px-2 px-md-3 px-xxl-4 py-4 py-lg-5">
+  <app-page-heading [title]="heading" [subtitle]="subtitle">
+    @if (mode==='customer') {
+      <a class="btn btn-primary px-4 shadow-sm" routerLink="/tickets/new"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Create ticket</a>
+    } @else {
+      <a class="btn btn-primary px-4 shadow-sm" [routerLink]="listUrl"><i class="bi bi-ticket-detailed me-2" aria-hidden="true"></i>Open ticket queue</a>
+    }
+  </app-page-heading>
+  <app-notice [message]="error()" />
+  <section class="card bg-dark bg-gradient text-white border-0 rounded-4 shadow-sm mb-4 overflow-hidden" aria-label="Workspace summary">
+    <div class="card-body p-4 p-lg-5">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-9">
+          <span class="badge bg-primary mb-3 px-3 py-2"><i class="bi bi-activity me-2" aria-hidden="true"></i>SUPPORT ACTIVITY</span>
+          <h2 class="h3 fw-bold mb-2">Good to see you, {{auth.user()?.fullName}}.</h2>
+          <p class="text-white-50 mb-0">@if(mode==='customer'){Everything you need to follow up on your requests is right here.} @else if(mode==='support'){Focus on your current assignments and keep customer conversations moving.} @else {Stay informed about incoming tickets, team progress and service content.}</p>
+        </div>
+        <div class="col-lg-3 text-lg-end d-none d-lg-block"><i class="bi bi-headset text-white-50 display-1" aria-hidden="true"></i></div>
+      </div>
+    </div>
+  </section>
+  <section aria-label="Ticket summary" class="row g-3 g-xl-4 mb-4">
+    @for (stat of cards(); track stat.label; let i = $index) {
+      <div class="col-sm-6 col-xxl-3">
+        <div class="card h-100 border-0 shadow-sm rounded-4">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <span class="small text-secondary fw-semibold">{{stat.label}}</span>
+              <span class="rounded-3 p-2" [class]="i===0?'bg-primary-subtle text-primary':i===1?'bg-warning-subtle text-warning-emphasis':i===2?'bg-info-subtle text-info-emphasis':'bg-success-subtle text-success'">
+                @switch(i) {
+                  @case(0){<i class="bi bi-ticket-detailed fs-5" aria-hidden="true"></i>}
+                  @case(1){<i class="bi bi-clock-history fs-5" aria-hidden="true"></i>}
+                  @case(2){<i class="bi bi-arrow-repeat fs-5" aria-hidden="true"></i>}
+                  @default{<i class="bi bi-check-circle fs-5" aria-hidden="true"></i>}
+                }
+              </span>
+            </div>
+            <div class="display-5 fw-bold lh-1 mb-2">{{stat.count}}</div>
+            <div class="small text-secondary">{{stat.description}}</div>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+  <div class="row g-4">
+    <section class="col-xxl-8" aria-label="Recent tickets">
+      <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+        <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center gap-2">
+          <div><h2 class="h5 fw-bold mb-1"><i class="bi bi-list-task text-primary me-2" aria-hidden="true"></i>Recent tickets</h2><div class="small text-secondary">Latest support activity you can access</div></div>
+          <a class="btn btn-outline-primary btn-sm" [routerLink]="listUrl">View all <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+        </div>
+        @if (loading()) {
+          <div class="p-5 text-center text-secondary"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading recent activity…</div>
+        } @else if (!tickets().length) {
+          <div class="p-4"><app-empty-state title="No tickets to show" subtitle="Your latest support activity will appear here." /></div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light"><tr><th scope="col" class="ps-4 py-3 small text-secondary text-uppercase">Ticket</th><th scope="col" class="py-3 small text-secondary text-uppercase">Status</th><th scope="col" class="py-3 small text-secondary text-uppercase">Priority</th><th scope="col" class="py-3 small text-secondary text-uppercase">Created</th><th scope="col" class="pe-4 text-end"> </th></tr></thead>
+              <tbody>
+                @for (ticket of tickets(); track ticket.id) {
+                  <tr><td class="ps-4 py-3"><a class="fw-bold text-decoration-none" [routerLink]="['/tickets',ticket.id]">{{ticket.ticketNumber}}</a><div class="text-secondary small mt-1">{{ticket.subject}}</div></td>
+                    <td><span class="badge rounded-pill px-3 py-2" [class]="ticketBadge(ticket.statusName)">{{ticket.statusName}}</span></td>
+                    <td><span class="small fw-medium">{{ticket.priorityName}}</span></td>
+                    <td class="small text-secondary">{{ticket.createdAt | date:'mediumDate'}}</td>
+                    <td class="pe-4 text-end"><a class="btn btn-light btn-sm border" [routerLink]="['/tickets',ticket.id]" aria-label="Open ticket"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </section>
+    <aside class="col-xxl-4" aria-label="Quick actions">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h2 class="h5 fw-bold mb-2"><i class="bi bi-lightning-charge text-primary me-2" aria-hidden="true"></i>Quick actions</h2>
+          <p class="small text-secondary mb-4">Common tasks, only a click away.</p>
+          <div class="d-grid gap-2">
+            @if(mode==='customer'){<a routerLink="/tickets/new" class="btn btn-primary text-start py-2"><i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Create a new ticket</a>}
+            <a [routerLink]="listUrl" class="btn btn-outline-primary text-start py-2"><i class="bi bi-inboxes me-2" aria-hidden="true"></i>Manage tickets</a>
+            <a routerLink="/knowledge-base" class="btn btn-outline-secondary text-start py-2"><i class="bi bi-journal-richtext me-2" aria-hidden="true"></i>Knowledge base</a>
+            <a routerLink="/faqs" class="btn btn-outline-secondary text-start py-2"><i class="bi bi-patch-question me-2" aria-hidden="true"></i>Frequently asked questions</a>
+            @if(mode==='admin'){
+              <a routerLink="/admin/products" class="btn btn-outline-secondary text-start py-2"><i class="bi bi-box-seam me-2" aria-hidden="true"></i>Products</a>
+              <a routerLink="/admin/ticket-categories" class="btn btn-outline-secondary text-start py-2"><i class="bi bi-tags me-2" aria-hidden="true"></i>Ticket categories</a>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="card bg-primary-subtle border-0 rounded-4"><div class="card-body p-4 d-flex gap-3"><i class="bi bi-person-check fs-2 text-primary" aria-hidden="true"></i><div><h3 class="h6 fw-bold mb-1">Your account</h3><div class="small fw-semibold">{{auth.user()?.fullName}}</div><div class="small text-secondary">{{auth.user()?.role}}</div></div></div></div>
+    </aside>
+  </div>
+</div>

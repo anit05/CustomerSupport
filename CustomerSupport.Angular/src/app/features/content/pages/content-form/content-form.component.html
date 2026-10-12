@@ -1,0 +1,25 @@
+<div class="container-fluid px-2 px-md-3 px-xxl-4 py-4 py-lg-5">
+  <app-page-heading [title]="heading" [subtitle]="type==='faqs'?'Write a clear, reusable answer for customers.':'Create a helpful support guide that people can rely on.'">
+    <a [routerLink]="backUrl" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Back to list</a>
+  </app-page-heading>
+  <div class="row g-4"><div class="col-xl-8"><div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-bottom p-4 d-flex gap-3 align-items-center"><span class="bg-primary-subtle text-primary rounded-3 p-3"><i class="bi fs-4" [class]="type==='faqs'?'bi-question-circle':'bi-journal-richtext'" aria-hidden="true"></i></span><div><h2 class="h5 fw-bold mb-1">Content editor</h2><p class="small text-secondary mb-0">Write, classify and control publication settings.</p></div></div>
+    <div class="card-body p-4 p-lg-5"><app-notice [message]="error()" />
+      @if(loading()){<p class="text-secondary"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading existing content…</p>}
+      <form #form="ngForm" (ngSubmit)="save()">
+        <div class="mb-4"><label for="title" class="form-label fw-semibold">{{type==='faqs'?'Question':'Article title'}} <span class="text-danger">*</span></label><input id="title" name="title" class="form-control form-control-lg" [(ngModel)]="title" required minlength="5" [maxlength]="type==='faqs'?500:250" [placeholder]="type==='faqs'?'e.g. How can I reset my password?':'e.g. Troubleshooting sign-in issues'"><div class="form-text">Keep it specific so readers can find the right answer quickly.</div></div>
+        <div class="mb-4"><label for="content" class="form-label fw-semibold">{{type==='faqs'?'Answer':'Article content'}} <span class="text-danger">*</span></label><textarea id="content" name="content" class="form-control" rows="12" [(ngModel)]="content" required minlength="5" placeholder="Write clear, actionable support information"></textarea><div class="form-text">Short paragraphs and step-by-step instructions are easiest to follow.</div></div>
+        <div class="mb-4"><label for="product" class="form-label fw-semibold">Related product <span class="fw-normal text-secondary">(optional)</span></label><select id="product" class="form-select" name="productId" [(ngModel)]="productId"><option [ngValue]="null">General (all products)</option>@for(p of products();track p.id){<option [ngValue]="p.id">{{p.name}}</option>}</select></div>
+        <div class="rounded-3 bg-body-tertiary border p-4 mb-4"><h3 class="h6 fw-bold mb-3"><i class="bi bi-sliders me-2" aria-hidden="true"></i>Visibility settings</h3>
+          @if(type==='knowledge-base'){<div class="form-check form-switch mb-3"><input type="checkbox" class="form-check-input" id="published" name="published" [(ngModel)]="isPublished"><label class="form-check-label fw-semibold" for="published">Published and visible to readers</label></div>}
+          @if(editing){<div class="form-check form-switch"><input id="active" type="checkbox" class="form-check-input" name="active" [(ngModel)]="isActive"><label for="active" class="form-check-label fw-semibold">Active</label></div>}
+          @if(!editing && type==='faqs'){<p class="small text-secondary mb-0">New FAQs are created as active resources.</p>}
+        </div>
+        <div class="d-flex flex-wrap justify-content-end gap-2 border-top pt-4"><a class="btn btn-outline-secondary px-4" [routerLink]="backUrl">Cancel</a><button class="btn btn-primary px-4" type="submit" [disabled]="form.invalid || loading() || saving()"><i class="bi bi-check-circle me-2" aria-hidden="true"></i>{{saving()?'Saving…':editing?'Save changes':'Create '+(type==='faqs'?'FAQ':'article')}}</button></div>
+      </form>
+    </div>
+  </div></div>
+  <aside class="col-xl-4"><div class="card border-0 shadow-sm rounded-4 mb-4"><div class="card-body p-4"><span class="bg-warning-subtle text-warning-emphasis p-3 rounded-3 d-inline-block mb-3"><i class="bi bi-lightbulb fs-4" aria-hidden="true"></i></span><h3 class="h5 fw-bold">Writing checklist</h3><ul class="small text-secondary mb-0 ps-3"><li class="mb-2">Use a descriptive title.</li><li class="mb-2">Explain the problem and solution.</li><li class="mb-2">Link a product when applicable.</li><li>Review visibility before saving.</li></ul></div></div>
+    <div class="card bg-primary-subtle border-0 rounded-4"><div class="card-body p-4"><h3 class="h6 fw-bold"><i class="bi bi-eye me-2" aria-hidden="true"></i>Publication notes</h3><p class="small text-secondary mb-0">Draft knowledge articles are accessible only to Administrators. Publish an article when it is ready for customers and support staff.</p></div></div>
+  </aside></div>
+</div>

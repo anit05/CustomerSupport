@@ -1,0 +1,26 @@
+<div class="container-fluid px-2 px-md-3 px-xxl-4 py-4 py-lg-5">
+  <app-page-heading [title]="heading" [subtitle]="description">
+    <a class="btn btn-primary px-4" [routerLink]="base+'/new'"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add {{singular.toLowerCase()}}</a>
+  </app-page-heading>
+  <app-notice [message]="error()" />
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-4"><div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 d-flex justify-content-between align-items-center"><div><div class="small text-secondary fw-semibold mb-2">Total {{heading.toLowerCase()}}</div><div class="h2 fw-bold mb-0">{{items().length}}</div></div><div class="bg-primary-subtle text-primary rounded-3 p-3"><i class="bi fs-3" [class]="type==='products'?'bi-box-seam':'bi-tags'" aria-hidden="true"></i></div></div></div></div>
+    <div class="col-sm-6 col-lg-4"><div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 d-flex justify-content-between align-items-center"><div><div class="small text-secondary fw-semibold mb-2">Active records</div><div class="h2 fw-bold mb-0">{{activeCount()}}</div></div><div class="bg-success-subtle text-success rounded-3 p-3"><i class="bi bi-check2-circle fs-3" aria-hidden="true"></i></div></div></div></div>
+  </div>
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center gap-3 p-4"><div><h2 class="h5 fw-bold mb-1">{{heading}} directory</h2><p class="small text-secondary mb-0">Review and maintain the records available to the service desk.</p></div><span class="badge text-bg-light border rounded-pill px-3 py-2">{{items().length}} records</span></div>
+    @if(loading()){<div class="text-secondary text-center p-5"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading records…</div>}
+    @else if(!items().length){<div class="p-4"><app-empty-state [title]="'No '+heading.toLowerCase()" subtitle="Create your first record to get started." /></div>}
+    @else{<div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light"><tr><th scope="col" class="ps-4 py-3 text-secondary small text-uppercase">Name</th><th scope="col" class="py-3 text-secondary small text-uppercase">Description</th><th scope="col" class="py-3 text-secondary small text-uppercase">Availability</th><th scope="col" class="text-end pe-4 py-3 text-secondary small text-uppercase">Actions</th></tr></thead>
+        <tbody>@for(item of items();track item.id){<tr>
+          <td class="ps-4 py-3"><div class="d-flex gap-3 align-items-center"><div class="bg-primary-subtle text-primary rounded-3 p-2"><i class="bi" [class]="type==='products'?'bi-box':'bi-tag'" aria-hidden="true"></i></div><div class="fw-semibold">{{item.name}}<div class="text-secondary small fw-normal">Record #{{item.id}}</div></div></div></td>
+          <td class="text-secondary small">{{item.description || 'No description provided'}}</td>
+          <td><span class="badge rounded-pill px-3 py-2" [class]="item.isActive?'text-bg-success':'text-bg-secondary'"><i class="bi me-1" [class]="item.isActive?'bi-check-circle':'bi-dash-circle'" aria-hidden="true"></i>{{item.isActive?'Active':'Inactive'}}</span></td>
+          <td class="text-end pe-4"><a class="btn btn-outline-primary btn-sm px-3" [routerLink]="[base,item.id,'edit']"><i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Edit</a></td>
+        </tr>}</tbody>
+      </table></div>}
+    <div class="card-footer bg-white border-top py-3 px-4 small text-secondary">Changes to active records are reflected in the corresponding ticket forms.</div>
+  </div>
+</div>

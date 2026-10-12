@@ -1,0 +1,169 @@
+<div class="container-fluid px-2 px-md-3 px-xxl-4 py-4 py-lg-5">
+  <app-page-heading [title]="ticket()?.subject || 'Support ticket'" subtitle="Ticket details, conversation, files, and activity history">
+    <a class="btn btn-outline-secondary" [routerLink]="backUrl"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Back to tickets</a>
+  </app-page-heading>
+  <app-notice [message]="error()" />
+  <app-notice [message]="success()" kind="success" />
+  @if(loading()){<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-5 text-center text-secondary">
+      <span class="spinner-border spinner-border-sm me-2">
+      </span>Loading ticket…</div>
+  </div>}
+  @else if(ticket();as t){
+  <div class="row g-4">
+    <div class="col-xl-8">
+      <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+            <div>
+              <span class="text-secondary small fw-semibold"><i class="bi bi-ticket-detailed me-2" aria-hidden="true"></i>TICKET NUMBER</span>
+              <h2 class="h4 fw-bold mb-0">{{t.ticketNumber}}</h2>
+            </div>
+            <div class="d-flex gap-2">
+              <span class="badge fs-6" [class]="ticketBadge(t.statusName)">{{t.statusName}}</span>
+              <span class="badge fs-6" [class]="priorityBadge(t.priorityName)">{{t.priorityName}}</span>
+            </div>
+          </div>
+          <h3 class="h6 fw-bold"><i class="bi bi-card-text text-primary me-2" aria-hidden="true"></i>Issue description</h3>
+          <p class="text-body-secondary mb-4 text-break" [style.white-space]="'pre-wrap'">{{t.description}}</p>
+          <div class="row g-3 small border-top pt-4">
+            <div class="col-sm-6">
+              <div class="text-secondary">Product</div>
+              <div class="fw-semibold">{{t.productName}}</div>
+            </div>
+            <div class="col-sm-6">
+              <div class="text-secondary">Category</div>
+              <div class="fw-semibold">{{t.categoryName || 'Not selected'}}</div>
+            </div>
+            <div class="col-sm-6">
+              <div class="text-secondary">Customer</div>
+              <div class="fw-semibold">{{t.customerName}}</div>
+            </div>
+            <div class="col-sm-6">
+              <div class="text-secondary">Assigned executive</div>
+              <div class="fw-semibold">{{t.assignedToUserName || 'Not assigned'}}</div>
+            </div>
+            <div class="col-sm-6">
+              <div class="text-secondary">Created</div>
+              <div>{{t.createdAt | date:'medium'}}</div>
+            </div>
+            <div class="col-sm-6">
+              <div class="text-secondary">Updated</div>
+              <div>{{(t.updatedAt || t.createdAt) | date:'medium'}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+          <h2 class="h5 fw-bold mb-0"><i class="bi bi-chat-left-text text-primary me-2" aria-hidden="true"></i>Conversation <span class="badge text-bg-light border ms-1">{{t.comments.length}}</span>
+          </h2>
+        </div>
+        <div class="card-body p-4">
+          @if(!t.comments.length){<p class="text-secondary small">No comments yet. Add the first update below.</p>}
+          @for(c of t.comments;track c.id){<div class="bg-body-tertiary border rounded-3 p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="fw-semibold">{{c.userName}} @if(c.isInternal){<span class="badge text-bg-warning ms-2">Internal</span>}</div>
+              <small class="text-secondary">{{c.createdAt | date:'medium'}}</small>
+            </div>
+            <p class="mb-0 mt-2 text-break" [style.white-space]="'pre-wrap'">{{c.content}}</p>
+          </div>}
+          @if(t.statusId!==5){<form #commentForm="ngForm" (ngSubmit)="addComment()">
+            <label class="form-label fw-semibold" for="comment">Add comment</label>
+            <textarea id="comment" name="comment" rows="3" class="form-control mb-3" [(ngModel)]="commentText" required maxlength="5000" placeholder="Write an update for this ticket">
+            </textarea>
+            @if(auth.role()!=='Customer'){<div class="form-check mb-3">
+              <input type="checkbox" class="form-check-input" name="internal" id="internal" [(ngModel)]="isInternal">
+              <label for="internal" class="form-check-label">Internal note (not visible to customer)</label>
+            </div>}
+            <button class="btn btn-primary" type="submit" [disabled]="commentForm.invalid || busy()"><i class="bi bi-send me-2" aria-hidden="true"></i>Post comment</button>
+          </form>}
+          @else {<div class="alert alert-light border mb-0">This ticket is closed; new comments are not permitted.</div>}
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-bottom py-3">
+          <h2 class="h5 fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2" aria-hidden="true"></i>Activity history</h2>
+        </div>
+        <div class="card-body p-4">
+          @if(!t.history.length){<p class="text-secondary mb-0">No history records.</p>}
+          @for(h of t.history;track h.id){<div class="d-flex gap-3 border-bottom pb-3 mb-3">
+            <span class="bg-primary-subtle text-primary rounded-circle p-2 h-100"><i class="bi bi-circle-fill small" aria-hidden="true"></i></span>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">{{h.action}}</div>
+              <div class="small text-secondary">{{h.changedByUserName}} · {{h.createdAt | date:'medium'}}</div>
+              @if(h.fieldName){<div class="small mt-1">{{h.fieldName}}: {{h.oldValue || '—'}} → {{h.newValue || '—'}}</div>}
+              @if(h.remarks){<p class="small mt-1 mb-0">{{h.remarks}}</p>}</div>
+          </div>}
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+          <h2 class="h5 fw-bold mb-0"><i class="bi bi-paperclip text-primary me-2" aria-hidden="true"></i>Attachments</h2>
+        </div>
+        <div class="card-body p-4">
+          @if(!attachments().length){<p class="small text-secondary">No files attached.</p>}
+          @for(a of attachments();track a.id){<div class="d-flex justify-content-between gap-2 align-items-center border-bottom pb-3 mb-3">
+            <div class="text-break">
+              <div class="small fw-semibold">{{a.originalFileName}}</div>
+              <div class="text-secondary small">{{(a.fileSizeInBytes/1024) | number:'1.0-1'}} KB</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="download(a)"><i class="bi bi-download me-1" aria-hidden="true"></i>Download</button>
+          </div>}
+          @if(t.statusId!==5){<label for="attachment" class="form-label small fw-semibold">Attach file</label>
+          <input id="attachment" type="file" class="form-control mb-2" (change)="selectFile($event)" accept=".png,.jpg,.jpeg,.pdf,.txt,.doc,.docx" />
+          <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="!selectedFile || busy()" (click)="upload()"><i class="bi bi-cloud-arrow-up me-2" aria-hidden="true"></i>Upload selected file</button>
+          <p class="form-text">Allowed extensions and file size are enforced by the API.</p>}
+        </div>
+      </div>
+      @if(auth.role()==='Administrator'){
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+          <h2 class="h5 fw-bold mb-0"><i class="bi bi-person-plus text-primary me-2" aria-hidden="true"></i>Assign ticket</h2>
+        </div>
+        <div class="card-body p-4">
+          <p class="small text-secondary">Enter an existing Support Executive's user ID. The current API does not expose an executive-directory endpoint.</p>
+          <form #assignForm="ngForm" (ngSubmit)="assign()">
+            <label for="exec" class="form-label fw-semibold small">Support Executive ID</label>
+            <input id="exec" name="supportExecutiveId" class="form-control mb-3" type="number" min="1" required [(ngModel)]="supportExecutiveId">
+            <button type="submit" class="btn btn-primary w-100" [disabled]="assignForm.invalid || busy()"><i class="bi bi-person-check me-2" aria-hidden="true"></i>Assign / Reassign</button>
+          </form>
+        </div>
+      </div>}
+      @if(auth.role()!=='Customer' && t.statusId!==5){
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+          <h2 class="h5 fw-bold mb-0"><i class="bi bi-arrow-repeat text-primary me-2" aria-hidden="true"></i>Change status</h2>
+        </div>
+        <div class="card-body p-4">
+          @if(availableTransitions().length){<form #statusForm="ngForm" (ngSubmit)="changeStatus()">
+            <label for="status" class="form-label small fw-semibold">Next status</label>
+            <select id="status" class="form-select mb-3" name="statusId" [(ngModel)]="nextStatusId" required>
+              <option [ngValue]="0" disabled>Choose next step</option>@for(s of availableTransitions();track s.id){<option [ngValue]="s.id">{{s.name}}</option>}</select>
+            <label for="remarks" class="form-label small fw-semibold">Remarks (optional)</label>
+            <textarea id="remarks" name="remarks" class="form-control mb-3" rows="3" [(ngModel)]="remarks">
+            </textarea>
+            <button class="btn btn-primary w-100" type="submit" [disabled]="statusForm.invalid || !nextStatusId || busy()"><i class="bi bi-check-circle me-2" aria-hidden="true"></i>Update status</button>
+          </form>}
+          @else {<p class="text-secondary small mb-0">No manual status transition is available. Open tickets become Assigned when an Administrator assigns them.</p>}
+        </div>
+      </div>}
+      @if(auth.role()!=='Customer'){
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-bottom py-3">
+          <h2 class="h5 fw-bold mb-0"><i class="bi bi-people text-primary me-2" aria-hidden="true"></i>Assignment history</h2>
+        </div>
+        <div class="card-body p-4">
+          @if(!assignments().length){<p class="small text-secondary mb-0">No assignments recorded.</p>}
+          @for(a of assignments();track a.id){<div class="border-bottom pb-3 mb-3">
+            <div class="fw-semibold small">{{a.assignedToUserName}}</div>
+            <div class="text-secondary small">Assigned by {{a.assignedByUserName}}</div>
+            <div class="text-secondary small">{{a.assignedAt | date:'medium'}}</div>
+            @if(a.unassignedAt){<span class="badge text-bg-light mt-1">Reassigned</span>}</div>}
+        </div>
+      </div>}
+    </div>
+  </div>}
+</div>

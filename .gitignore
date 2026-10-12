@@ -3,6 +3,7 @@
 # Build output
 [Bb]in/
 [Oo]bj/
+CustomerSupport.Angular/node_modules
 
 # Visual Studio files
 .vs/
@@ -97,3 +98,5 @@ coverage/
 
 ## Docker
 docker-compose.override.yml
+
+

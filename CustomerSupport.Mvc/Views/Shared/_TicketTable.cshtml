@@ -1,0 +1,16 @@
+@model IEnumerable<TicketSummary>
+@if(!Model.Any())
+{
+    <div class="p-5 text-center"><i class="bi bi-inbox fs-1 text-secondary"></i><p class="text-secondary mt-3 mb-0">No tickets found.</p></div>
+}
+else
+{
+    <div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="ps-4">Ticket</th><th>Product</th><th>Priority</th><th>Status</th><th>Created</th><th class="text-end pe-4">View</th></tr></thead><tbody>
+    @foreach(var item in Model)
+    {
+        <tr><td class="ps-4"><a class="fw-semibold text-decoration-none" href="/tickets/@item.Id">@item.TicketNumber</a><div class="text-secondary small">@item.Subject</div></td>
+            <td>@item.ProductName</td><td><span class="badge @(item.PriorityId>=3?"text-bg-warning":"text-bg-light border")">@item.PriorityName</span></td>
+            <td><span class="badge @(item.StatusId==5?"text-bg-secondary":item.StatusId==4?"text-bg-success":item.StatusId==3?"text-bg-info":"text-bg-primary")">@item.StatusName</span></td>
+            <td class="small text-secondary">@item.CreatedAt.ToString("dd MMM yyyy")</td><td class="text-end pe-4"><a class="btn btn-sm btn-outline-primary" href="/tickets/@item.Id">Details</a></td></tr>
+    }</tbody></table></div>
+}

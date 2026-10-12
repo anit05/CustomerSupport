@@ -1,0 +1,30 @@
+<div class="container-fluid px-2 px-md-3 px-xxl-4 py-4 py-lg-5">
+  <app-page-heading title="Create support ticket" subtitle="Tell us what happened and we will help you move forward.">
+    <a routerLink="/tickets/my" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>My tickets</a>
+  </app-page-heading>
+  <div class="row g-4">
+    <div class="col-xl-8"><div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="card-header bg-dark text-white p-4 d-flex align-items-center gap-3"><div class="bg-primary rounded-3 p-3"><i class="bi bi-ticket-detailed fs-4" aria-hidden="true"></i></div><div><h2 class="h5 fw-bold mb-1">New support request</h2><div class="small text-white-50">Complete the information below. Required fields are marked with *.</div></div></div>
+      <div class="card-body p-4 p-lg-5"><app-notice [message]="error()" />
+        @if(loading()){<div class="alert alert-info d-flex align-items-center gap-2"><span class="spinner-border spinner-border-sm" aria-hidden="true"></span>Loading available products and priorities…</div>}
+        <form #form="ngForm" (ngSubmit)="submit()">
+          <div class="d-flex gap-3 align-items-center mb-4"><span class="rounded-circle text-bg-primary p-2 px-3 fw-bold">1</span><div><h3 class="h6 fw-bold mb-0">Classify your request</h3><p class="small text-secondary mb-0">Choose the relevant product and priority.</p></div></div>
+          <div class="row g-4 mb-5">
+            <div class="col-md-6"><label for="product" class="form-label fw-semibold">Product <span class="text-danger">*</span></label><select id="product" name="productId" [(ngModel)]="model.productId" class="form-select form-select-lg" required><option [ngValue]="0" disabled>Choose a product</option>@for(p of products();track p.id){<option [ngValue]="p.id">{{p.name}}</option>}</select></div>
+            <div class="col-md-6"><label for="category" class="form-label fw-semibold">Ticket category <span class="text-secondary fw-normal">(optional)</span></label><select id="category" name="categoryId" [(ngModel)]="model.categoryId" class="form-select form-select-lg"><option [ngValue]="null">General / Unspecified</option>@for(c of categories();track c.id){<option [ngValue]="c.id">{{c.name}}</option>}</select></div>
+            <div class="col-md-6"><label for="priority" class="form-label fw-semibold">Priority <span class="text-danger">*</span></label><select id="priority" name="priorityId" [(ngModel)]="model.priorityId" class="form-select form-select-lg" required>@for(p of priorities();track p.id){<option [ngValue]="p.id">{{p.name}}</option>}</select><div class="form-text">Select the urgency that best describes the issue.</div></div>
+          </div>
+          <hr class="my-4">
+          <div class="d-flex gap-3 align-items-center mb-4"><span class="rounded-circle text-bg-primary p-2 px-3 fw-bold">2</span><div><h3 class="h6 fw-bold mb-0">Describe the issue</h3><p class="small text-secondary mb-0">Give the team enough information to investigate.</p></div></div>
+          <div class="mb-4"><label for="subject" class="form-label fw-semibold">Subject <span class="text-danger">*</span></label><input id="subject" class="form-control form-control-lg" name="subject" [(ngModel)]="model.subject" required minlength="5" maxlength="200" placeholder="e.g. Unable to sign in after password reset"><div class="form-text">A short summary helps the support team identify your issue.</div></div>
+          <div class="mb-4"><label for="description" class="form-label fw-semibold">Description <span class="text-danger">*</span></label><textarea id="description" class="form-control" rows="8" name="description" [(ngModel)]="model.description" required minlength="10" maxlength="5000" placeholder="What were you trying to do? What happened? Include any error messages and steps to reproduce the problem."></textarea><div class="form-text">You can add screenshots and documents from the Ticket Details page after submitting.</div></div>
+          <div class="border-top pt-4 d-flex flex-wrap justify-content-end gap-2"><a routerLink="/tickets/my" class="btn btn-outline-secondary px-4">Cancel</a><button class="btn btn-primary px-4" type="submit" [disabled]="form.invalid || !model.productId || loading() || saving()">@if(saving()){<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>}@else{<i class="bi bi-send me-2" aria-hidden="true"></i>}{{saving()?'Submitting…':'Submit support ticket'}}</button></div>
+        </form>
+      </div>
+    </div></div>
+    <aside class="col-xl-4">
+      <div class="card bg-primary-subtle border-0 rounded-4 mb-4"><div class="card-body p-4"><div class="rounded-3 bg-white text-primary p-3 d-inline-block mb-3"><i class="bi bi-lightbulb fs-4" aria-hidden="true"></i></div><h3 class="h5 fw-bold">How to get help faster</h3><ol class="text-secondary small ps-3 mb-0"><li class="mb-2">Choose the product experiencing the issue.</li><li class="mb-2">Describe what happened and when.</li><li>Include any error messages or steps to reproduce it.</li></ol></div></div>
+      <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4"><h3 class="h5 fw-bold"><i class="bi bi-journal-check me-2 text-primary" aria-hidden="true"></i>Find an answer</h3><p class="text-secondary small mb-4">You may find a solution in our existing support resources.</p><div class="d-grid gap-2"><a routerLink="/knowledge-base" class="btn btn-outline-primary text-start"><i class="bi bi-journal-richtext me-2" aria-hidden="true"></i>Browse knowledge base</a><a routerLink="/faqs" class="btn btn-outline-secondary text-start"><i class="bi bi-patch-question me-2" aria-hidden="true"></i>Frequently asked questions</a></div></div></div>
+    </aside>
+  </div>
+</div>

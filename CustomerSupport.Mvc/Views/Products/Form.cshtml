@@ -1,0 +1,10 @@
+@model CatalogForm
+@{var editing=Model.Id>0; ViewData["Title"]=editing?"Edit product":"Add product";}
+<div class="row"><div class="col-lg-9 col-xl-7"><a href="/admin/products" class="small text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to products</a>
+<h1 class="h2 fw-bold my-3">@(editing?"Edit product":"Add product")</h1><div class="card shadow-sm border-0 rounded-4"><div class="card-body p-4 p-lg-5">
+<form action="/admin/products/save" method="post">@Html.AntiForgeryToken()<input asp-for="Id" type="hidden" /><div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="mb-3"><label asp-for="Name" class="form-label fw-semibold">Product name</label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger small"></span></div>
+<div class="mb-3"><label asp-for="Description" class="form-label fw-semibold">Description</label><textarea asp-for="Description" class="form-control" rows="4"></textarea></div>
+@if(editing){<div class="form-check form-switch mb-4"><input asp-for="IsActive" class="form-check-input" type="checkbox" /><label asp-for="IsActive" class="form-check-label">Active</label></div>}
+<button type="submit" class="btn btn-primary px-4">@(editing?"Save changes":"Create product")</button><a class="btn btn-outline-secondary ms-2" href="/admin/products">Cancel</a>
+</form></div></div></div></div>
