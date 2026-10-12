@@ -1,0 +1,25 @@
+<section class="container-xl py-4 py-lg-5">
+  <div class="row justify-content-center g-4">
+    <div class="col-xl-9 col-xxl-8">
+      <div class="text-center mb-4 mb-lg-5"><span class="badge bg-primary-subtle text-primary mb-3 px-3 py-2">GET STARTED</span><h1 class="display-6 fw-bold mb-2">Create your customer account</h1><p class="lead text-secondary mb-0">A single place to submit requests, review updates and find answers.</p></div>
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-dark text-white p-4 d-flex align-items-center gap-3"><i class="bi bi-person-plus fs-3 text-info" aria-hidden="true"></i><div><h2 class="h5 fw-bold mb-1">Registration details</h2><span class="small text-white-50">Fields marked with * are required.</span></div></div>
+        <div class="card-body p-4 p-lg-5"><app-notice [message]="error()" /><form #form="ngForm" (ngSubmit)="submit()">
+          <h3 class="h6 text-primary fw-bold mb-3"><i class="bi bi-person-vcard me-2" aria-hidden="true"></i>Personal information</h3>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6"><label for="firstName" class="form-label fw-semibold">First name *</label><input id="firstName" class="form-control form-control-lg" [(ngModel)]="model.firstName" name="firstName" required minlength="2" maxlength="100" autocomplete="given-name" placeholder="Your first name"></div>
+            <div class="col-md-6"><label for="lastName" class="form-label fw-semibold">Last name *</label><input id="lastName" class="form-control form-control-lg" [(ngModel)]="model.lastName" name="lastName" required minlength="2" maxlength="100" autocomplete="family-name" placeholder="Your last name"></div>
+            <div class="col-md-6"><label for="email" class="form-label fw-semibold">Email address *</label><input id="email" type="email" class="form-control form-control-lg" [(ngModel)]="model.email" name="email" required email autocomplete="email" placeholder="name@example.com"></div>
+            <div class="col-md-6"><label for="phoneNumber" class="form-label fw-semibold">Phone number <span class="fw-normal text-secondary">(optional)</span></label><input id="phoneNumber" type="tel" class="form-control form-control-lg" [(ngModel)]="model.phoneNumber" name="phoneNumber" autocomplete="tel" placeholder="Your phone number"></div>
+          </div>
+          <hr class="my-4"><h3 class="h6 text-primary fw-bold mb-3"><i class="bi bi-shield-lock me-2" aria-hidden="true"></i>Account security</h3>
+          <div class="row g-3 mb-4"><div class="col-md-6"><label for="password" class="form-label fw-semibold">Password *</label><input id="password" type="password" class="form-control form-control-lg" [(ngModel)]="model.password" name="password" required minlength="8" autocomplete="new-password" placeholder="Create a strong password"><div class="form-text">Use at least 8 characters.</div></div>
+            <div class="col-md-6"><label for="confirmPassword" class="form-label fw-semibold">Confirm password *</label><input id="confirmPassword" type="password" class="form-control form-control-lg" [(ngModel)]="model.confirmPassword" name="confirmPassword" required autocomplete="new-password" placeholder="Repeat your password"></div></div>
+          @if (model.password && model.confirmPassword && model.password !== model.confirmPassword) {<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle me-2" aria-hidden="true"></i>Passwords must match.</div>}
+          <div class="bg-primary-subtle border-0 text-primary-emphasis rounded-3 p-3 d-flex gap-3"><i class="bi bi-info-circle fs-4 text-primary" aria-hidden="true"></i><div class="small">Public registration creates a <strong>Customer</strong> account. Administrator and Support Executive accounts are managed separately.</div></div>
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4"><a routerLink="/login" class="text-decoration-none fw-semibold"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Back to sign in</a><button class="btn btn-primary btn-lg px-5" type="submit" [disabled]="form.invalid || busy() || model.password !== model.confirmPassword">{{busy()?'Creating account…':'Create account'}}<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button></div>
+        </form></div>
+      </div>
+    </div>
+  </div>
+</section>

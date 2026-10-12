@@ -1,0 +1,48 @@
+@model CurrentUser
+@{
+    ViewData["Title"] = "My account";
+    var displayRole = Model.Role == "SupportExecutive" ? "Support Executive" : Model.Role;
+    var initials = string.Concat(Model.FullName
+        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+        .Take(2)
+        .Select(part => char.ToUpperInvariant(part[0])));
+}
+<div class="container-fluid px-2 px-md-3 px-xxl-4 py-4">
+    <div class="mb-4">
+        <h1 class="h2 fw-bold mb-1">My account</h1>
+        <p class="text-secondary mb-0">Your account details</p>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <section class="card border-0 shadow-sm rounded-4 overflow-hidden" aria-labelledby="profileHeading">
+                <div class="card-header bg-dark text-white p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center p-3 fw-bold fs-4">
+                            @initials
+                        </span>
+                        <div>
+                            <h2 class="h4 fw-bold mb-1" id="profileHeading">@Model.FullName</h2>
+                            <span class="badge text-bg-primary">@displayRole</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <dl class="row gy-3 mb-0">
+                        <dt class="col-sm-4 text-secondary fw-medium">User ID</dt>
+                        <dd class="col-sm-8 fw-semibold mb-0">@Model.UserId</dd>
+
+                        <dt class="col-sm-4 text-secondary fw-medium">Full name</dt>
+                        <dd class="col-sm-8 fw-semibold mb-0">@Model.FullName</dd>
+
+                        <dt class="col-sm-4 text-secondary fw-medium">Email address</dt>
+                        <dd class="col-sm-8 fw-semibold text-break mb-0">@Model.Email</dd>
+
+                        <dt class="col-sm-4 text-secondary fw-medium">Role</dt>
+                        <dd class="col-sm-8 fw-semibold mb-0">@displayRole</dd>
+                    </dl>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

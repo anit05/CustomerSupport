@@ -1,0 +1,13 @@
+<div class="container-fluid px-2 px-md-3 px-xxl-4 py-4 py-lg-5">
+  <app-page-heading [title]="heading" [subtitle]="type==='faqs'?'Answers to common support questions':'Practical guides from our support team'">
+    <a class="btn btn-outline-secondary" [routerLink]="backUrl"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Back to resources</a>
+  </app-page-heading>
+  <app-notice [message]="error()" />
+  @if(loading()){<div class="card border-0 rounded-4 p-5 text-secondary"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading resource…</div>}
+  @else if(item();as x){<div class="row g-4"><div class="col-xxl-9">
+    <article class="card border-0 shadow-sm rounded-4 overflow-hidden"><div class="card-header bg-dark text-white p-4 p-lg-5"><div class="d-flex flex-wrap gap-2 mb-3"><span class="badge bg-primary rounded-pill px-3 py-2">{{type==='faqs'?'FAQ':'KNOWLEDGE ARTICLE'}}</span>@if(x.productName){<span class="badge bg-secondary rounded-pill px-3 py-2">{{x.productName}}</span>}</div><h2 class="h2 fw-bold lh-base mb-3">{{label(x)}}</h2><div class="text-white-50 small"><i class="bi bi-calendar3 me-2" aria-hidden="true"></i>Created {{x.createdAt | date:'longDate'}}</div></div>
+      <div class="card-body p-4 p-lg-5"><div class="d-flex align-items-center gap-2 mb-4 text-primary"><i class="bi bi-book fs-4" aria-hidden="true"></i><h3 class="h6 text-uppercase fw-bold mb-0">{{type==='faqs'?'Answer':'Step-by-step guidance'}}</h3></div><div class="lh-lg text-break text-body" [style.white-space]="'pre-wrap'">{{body(x)}}</div>
+        @if(auth.role()==='Administrator'){<div class="mt-5 border-top pt-4"><a class="btn btn-outline-primary px-4" [routerLink]="[adminBase,x.id,'edit']"><i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Edit content</a></div>}
+      </div></article>
+  </div><aside class="col-xxl-3"><div class="card bg-primary-subtle border-0 rounded-4"><div class="card-body p-4"><i class="bi bi-lightbulb fs-2 text-primary" aria-hidden="true"></i><h3 class="h5 fw-bold mt-3">More resources</h3><p class="small text-secondary">Browse support articles and commonly asked questions for more answers.</p><a class="btn btn-outline-primary btn-sm" [routerLink]="backUrl">Browse all resources<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a></div></div></aside></div>}
+</div>

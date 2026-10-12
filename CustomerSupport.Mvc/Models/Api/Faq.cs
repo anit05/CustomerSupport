@@ -1,0 +1,14 @@
+namespace CustomerSupport.Mvc.Models.Api
+{
+    public sealed class Faq
+    {
+        public int Id { get; set; }
+        public string Question { get; set; } = string.Empty;
+        public string Answer { get; set; } = string.Empty;
+        public int? ProductId { get; set; }
+        public string? ProductName { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+    }
+}

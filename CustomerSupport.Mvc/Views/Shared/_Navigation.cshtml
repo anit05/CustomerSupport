@@ -1,0 +1,77 @@
+@model string
+@{
+    var role = Model;
+    var path = Context.Request.Path.ToString();
+}
+<nav class="nav nav-pills flex-column gap-2" aria-label="Workspace navigation">
+    <p class="text-uppercase text-white-50 small fw-bold mb-2 px-3">Your workspace</p>
+
+    @if (role == "Customer")
+    {
+        <a href="/customer/dashboard"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/customer/dashboard" ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-grid-1x2 fs-5" aria-hidden="true"></i>Dashboard
+        </a>
+        <a href="/tickets/new"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/tickets/new" ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-plus-circle fs-5" aria-hidden="true"></i>New ticket
+        </a>
+        <a href="/tickets/my"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/tickets/my" ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-ticket-detailed fs-5" aria-hidden="true"></i>My tickets
+        </a>
+    }
+    else if (role == "SupportExecutive")
+    {
+        <a href="/support/dashboard"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/support/dashboard" ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-grid-1x2 fs-5" aria-hidden="true"></i>Dashboard
+        </a>
+        <a href="/support/tickets"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/support/tickets" ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-ticket-detailed fs-5" aria-hidden="true"></i>Assigned tickets
+        </a>
+    }
+    else if (role == "Administrator")
+    {
+        <a href="/admin/dashboard"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/admin/dashboard" ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-grid-1x2 fs-5" aria-hidden="true"></i>Dashboard
+        </a>
+        <a href="/admin/tickets"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/admin/tickets" ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-ticket-detailed fs-5" aria-hidden="true"></i>Tickets
+        </a>
+        <a href="/admin/products"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path.StartsWith("/admin/products") ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-box-seam fs-5" aria-hidden="true"></i>Products
+        </a>
+        <a href="/admin/ticket-categories"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path.StartsWith("/admin/ticket-categories") ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-tags fs-5" aria-hidden="true"></i>Categories
+        </a>
+        <p class="text-uppercase text-white-50 small fw-bold mt-3 mb-1 px-3">Content management</p>
+        <a href="/admin/knowledge-base"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path.StartsWith("/admin/knowledge-base") ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-journal-text fs-5" aria-hidden="true"></i>Knowledge base
+        </a>
+        <a href="/admin/faqs"
+           class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path.StartsWith("/admin/faqs") ? "active shadow-sm" : "text-white")">
+            <i class="bi bi-question-circle fs-5" aria-hidden="true"></i>FAQs
+        </a>
+    }
+
+    <p class="text-uppercase text-white-50 small fw-bold mt-3 mb-1 px-3">Resources</p>
+    <a href="/knowledge-base"
+       class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/knowledge-base" ? "active shadow-sm" : "text-white")">
+        <i class="bi bi-journal-bookmark fs-5" aria-hidden="true"></i>Help articles
+    </a>
+    <a href="/faqs"
+       class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/faqs" ? "active shadow-sm" : "text-white")">
+        <i class="bi bi-patch-question fs-5" aria-hidden="true"></i>FAQs
+    </a>
+    <a href="/account"
+       class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 @(path == "/account" ? "active shadow-sm" : "text-white")">
+        <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>My account
+    </a>
+</nav>

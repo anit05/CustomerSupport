@@ -1,0 +1,61 @@
+@model TicketDetailsPage
+@{ViewData["Title"]="Ticket details";var t=Model.Ticket;}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4"><div><a class="text-decoration-none small" href="@(Model.IsCustomer?"/tickets/my":Model.IsAdmin?"/admin/tickets":"/support/tickets")"><i class="bi bi-arrow-left me-1"></i>Back to tickets</a>
+    <h1 class="h2 fw-bold mt-2 mb-1">@t.Subject</h1><div class="d-flex flex-wrap gap-2 align-items-center"><span class="text-secondary">@t.TicketNumber</span><span class="badge text-bg-primary">@t.StatusName</span><span class="badge text-bg-warning">@t.PriorityName priority</span></div></div>
+    <span class="text-secondary small">Created @t.CreatedAt.ToString("dd MMM yyyy, HH:mm") UTC</span></div>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card shadow-sm border-0 rounded-4 mb-4"><div class="card-header bg-white p-4"><h2 class="h5 mb-0 fw-bold"><i class="bi bi-file-text me-2 text-primary"></i>Request overview</h2></div>
+        <div class="card-body p-4"><p class="text-break mb-4" >@t.Description</p><dl class="row gy-2 mb-0"><dt class="col-sm-4 text-secondary">Product</dt><dd class="col-sm-8 fw-semibold">@t.ProductName</dd><dt class="col-sm-4 text-secondary">Category</dt><dd class="col-sm-8">@(t.CategoryName??"Not selected")</dd><dt class="col-sm-4 text-secondary">Customer</dt><dd class="col-sm-8">@t.CustomerName</dd><dt class="col-sm-4 text-secondary">Assigned to</dt><dd class="col-sm-8">@(t.AssignedToUserName??"Unassigned")</dd></dl></div></div>
+        <div class="card shadow-sm border-0 rounded-4 mb-4"><div class="card-header bg-white p-4 d-flex justify-content-between"><h2 class="h5 fw-bold mb-0"><i class="bi bi-chat-square-text me-2 text-primary"></i>Conversation</h2><span class="text-secondary small">@t.Comments.Count message(s)</span></div>
+            <div class="card-body p-4">
+                @if(t.Comments.Count==0){<div class="text-center text-secondary py-3"><i class="bi bi-chat-square fs-2"></i><p class="mt-2">No comments yet.</p></div>}
+                @foreach(var c in t.Comments.OrderBy(x=>x.CreatedAt))
+                {
+                    <div class="border rounded-3 p-3 mb-3"><div class="d-flex flex-wrap justify-content-between gap-2 mb-2"><span class="fw-semibold">@c.UserName @if(c.IsInternal){<span class="badge text-bg-warning ms-1">Internal</span>}</span><span class="text-secondary small">@c.CreatedAt.ToString("dd MMM yyyy, HH:mm") UTC</span></div><p class="mb-0 text-break" >@c.Content</p></div>
+                }
+                @if(t.StatusId!=5)
+                {
+                    <form method="post" action="/tickets/comment" class="mt-3">@Html.AntiForgeryToken()<input type="hidden" name="TicketId" value="@t.Id" />
+                        <label class="form-label fw-semibold" for="comment">Add comment</label><textarea class="form-control" id="comment" name="Content" rows="3" required maxlength="4000" placeholder="Write an update..."></textarea>
+                        @if(!Model.IsCustomer){<div class="form-check my-3"><input type="checkbox" class="form-check-input" name="IsInternal" value="true" id="isInternal" /><label class="form-check-label" for="isInternal">Internal comment (not visible to customer)</label></div>}
+                        <button class="btn btn-primary mt-3" type="submit"><i class="bi bi-send me-2"></i>Post comment</button>
+                    </form>
+                }
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 rounded-4 mb-4"><div class="card-header bg-white p-4"><h2 class="h5 fw-bold mb-0"><i class="bi bi-paperclip me-2 text-primary"></i>Attachments</h2></div><div class="card-body p-4">
+            @if(t.Attachments.Count==0){<p class="text-secondary">No attachments uploaded.</p>}
+            @foreach(var a in t.Attachments){<div class="d-flex align-items-center justify-content-between border rounded-3 p-3 mb-2"><div><i class="bi bi-file-earmark me-2 text-primary"></i><span class="fw-semibold text-break">@a.OriginalFileName</span><div class="small text-secondary">@a.UploadedByUserName · @(Math.Round(a.FileSizeInBytes/1024.0,1)) KB</div></div><a href="/tickets/@t.Id/attachments/@a.Id/download" class="btn btn-outline-primary btn-sm"><i class="bi bi-download me-1"></i>Download</a></div>}
+            @if(t.StatusId!=5){<form action="/tickets/upload" method="post" enctype="multipart/form-data" class="mt-3">@Html.AntiForgeryToken()<input type="hidden" name="TicketId" value="@t.Id" /><label class="form-label fw-semibold" for="attachment">Upload file</label><div class="input-group"><input type="file" name="File" id="attachment" class="form-control" required /><button class="btn btn-outline-primary" type="submit">Upload</button></div><small class="text-secondary">The API validates the allowed file types and size.</small></form>}
+        </div></div>
+        <div class="card shadow-sm border-0 rounded-4"><div class="card-header bg-white p-4"><h2 class="h5 fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Ticket history</h2></div><div class="card-body p-4">
+            @if(t.History.Count==0){<p class="text-secondary mb-0">No recorded changes.</p>}
+            @foreach(var h in t.History.OrderByDescending(x=>x.CreatedAt)){<div class="border-bottom py-3"><div class="d-flex justify-content-between gap-2"><span class="fw-semibold">@h.Action</span><span class="text-secondary small">@h.CreatedAt.ToString("dd MMM yyyy HH:mm") UTC</span></div><div class="small text-secondary">@h.ChangedByUserName</div>@if(!string.IsNullOrWhiteSpace(h.Remarks)){<p class="mb-0 small">@h.Remarks</p>}@if(!string.IsNullOrWhiteSpace(h.FieldName)){<div class="small">@h.FieldName: @h.OldValue → @h.NewValue</div>}</div>}
+        </div></div>
+    </div>
+    <div class="col-xl-4">
+        @if(Model.IsAdmin && t.StatusId!=5)
+        {
+            <div class="card shadow-sm border-0 rounded-4 mb-4"><div class="card-body p-4"><h2 class="h5 fw-bold mb-3">Assign ticket</h2>
+                <form action="/tickets/assign" method="post">@Html.AntiForgeryToken()<input type="hidden" name="TicketId" value="@t.Id" /><label class="form-label fw-semibold small" for="supportExecutiveId">Support Executive ID</label><input class="form-control mb-2" type="number" min="1" name="SupportExecutiveId" id="supportExecutiveId" value="@t.AssignedToUserId" required /><p class="small text-secondary">The current API does not expose a Support Executive listing endpoint.</p><button class="btn btn-primary w-100" type="submit">Assign / reassign</button></form>
+            </div></div>
+        }
+        @if((Model.IsAdmin||Model.IsSupport)&& Model.AllowedTransitions.Count>0)
+        {
+            <div class="card shadow-sm border-0 rounded-4 mb-4"><div class="card-body p-4"><h2 class="h5 fw-bold mb-3">Change status</h2>
+                <form action="/tickets/status" method="post">@Html.AntiForgeryToken()<input type="hidden" name="TicketId" value="@t.Id" />
+                    <label class="form-label fw-semibold small" for="statusId">Next status</label><select name="StatusId" id="statusId" class="form-select mb-3" required><option value="">Choose status</option>@foreach(var s in Model.Statuses.Where(s=>Model.AllowedTransitions.Contains(s.Id))){<option value="@s.Id">@s.Name</option>}</select>
+                    <label class="form-label fw-semibold small" for="remarks">Remarks</label><textarea name="Remarks" id="remarks" rows="3" class="form-control mb-3"></textarea><button class="btn btn-primary w-100" type="submit">Update status</button>
+                </form>
+            </div></div>
+        }
+        @if(!Model.IsCustomer)
+        {
+            <div class="card shadow-sm border-0 rounded-4"><div class="card-body p-4"><h2 class="h5 fw-bold mb-3">Assignment history</h2>
+                @if(Model.Assignments.Count==0){<p class="small text-secondary mb-0">No assignments yet.</p>}
+                @foreach(var a in Model.Assignments.OrderByDescending(x=>x.AssignedAt)){<div class="border-bottom py-2"><div class="fw-semibold">@a.AssignedToUserName</div><div class="small text-secondary">By @a.AssignedByUserName</div><div class="small text-secondary">@a.AssignedAt.ToString("dd MMM yyyy") UTC</div></div>}
+            </div></div>
+        }
+    </div>
+</div>

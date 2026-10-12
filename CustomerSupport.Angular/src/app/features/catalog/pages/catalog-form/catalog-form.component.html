@@ -1,0 +1,20 @@
+<div class="container-fluid px-2 px-md-3 px-xxl-4 py-4 py-lg-5">
+  <app-page-heading [title]="heading" [subtitle]="'Manage the details and availability of this '+singular.toLowerCase()+'.'">
+    <a [routerLink]="base" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Back to list</a>
+  </app-page-heading>
+  <div class="row g-4">
+    <div class="col-xl-8"><div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="card-header bg-white border-bottom p-4 d-flex gap-3 align-items-center"><span class="bg-primary-subtle text-primary rounded-3 p-3"><i class="bi fs-5" [class]="type==='products'?'bi-box-seam':'bi-tags'" aria-hidden="true"></i></span><div><h2 class="h5 fw-bold mb-1">{{singular}} information</h2><div class="small text-secondary">Update fields below and save when finished.</div></div></div>
+      <div class="card-body p-4 p-lg-5"><app-notice [message]="error()" />
+        @if(loading()){<div class="p-4 text-secondary"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading record…</div>}
+        <form #form="ngForm" (ngSubmit)="save()">
+          <div class="mb-4"><label for="name" class="form-label fw-semibold">{{singular}} name <span class="text-danger">*</span></label><input id="name" class="form-control form-control-lg" [(ngModel)]="model.name" name="name" required minlength="2" maxlength="200" placeholder="Enter {{singular.toLowerCase()}} name"><div class="form-text">Use a concise name that makes sense to your support team.</div></div>
+          <div class="mb-4"><label for="description" class="form-label fw-semibold">Description <span class="fw-normal text-secondary">(optional)</span></label><textarea id="description" class="form-control" rows="5" [(ngModel)]="model.description" name="description" placeholder="Describe when this {{singular.toLowerCase()}} should be used"></textarea></div>
+          @if(editing){<div class="bg-body-tertiary rounded-3 border p-3 mb-4"><div class="form-check form-switch"><input id="active" class="form-check-input" type="checkbox" name="isActive" [(ngModel)]="model.isActive"><label class="form-check-label fw-semibold" for="active">Active and available for selection</label></div><p class="small text-secondary ms-4 mb-0">Deactivate to hide from new ticket selection without deleting its history.</p></div>}
+          <div class="border-top pt-4 d-flex justify-content-end flex-wrap gap-2"><a [routerLink]="base" class="btn btn-outline-secondary px-4">Cancel</a><button type="submit" class="btn btn-primary px-4" [disabled]="form.invalid || loading() || saving()"><i class="bi bi-check2-circle me-2" aria-hidden="true"></i>{{saving()?'Saving…':editing?'Save changes':'Create '+singular}}</button></div>
+        </form>
+      </div>
+    </div></div>
+    <aside class="col-xl-4"><div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4"><span class="bg-primary-subtle text-primary p-3 rounded-3 d-inline-block mb-3"><i class="bi bi-lightbulb fs-4" aria-hidden="true"></i></span><h3 class="h5 fw-bold">Availability settings</h3><p class="text-secondary small mb-0">Inactive records remain visible to Administrators, but are not offered to customers when creating new tickets.</p></div></div></aside>
+  </div>
+</div>
