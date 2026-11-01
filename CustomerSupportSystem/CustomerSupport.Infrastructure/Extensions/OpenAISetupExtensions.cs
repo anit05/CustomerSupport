@@ -1,6 +1,7 @@
 ﻿using CustomerSupport.Application.Interfaces.Services;
 using CustomerSupport.Infrastructure.Configurations;
 using CustomerSupport.Infrastructure.Services;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -61,19 +62,47 @@ namespace CustomerSupport.Infrastructure.Extensions
                 // The Value property returns the OpenAISettings object
                 // populated from the application's configuration.
                 OpenAISettings settings = serviceProvider
-              .GetRequiredService<IOptions<OpenAISettings>>()
-              .Value;
+                    .GetRequiredService<IOptions<OpenAISettings>>()
+                    .Value;
 
                 // Create the OpenAI client using our API key.
                 // The API key is used to authenticate requests sent to the OpenAI API.
                 return new OpenAIClient(settings.ApiKey);
             });
 
+            // The OpenAI Responses SDK adapter may show warning OPENAI001.
+#pragma warning disable OPENAI001
+
+            // Add this registration inside the existing OpenAI setup method.
+            services.AddSingleton<IChatClient>(serviceProvider =>
+            {
+                // Reuse the OpenAIClient already registered.
+                OpenAIClient openAIClient =
+                    serviceProvider.GetRequiredService<OpenAIClient>();
+
+                // Reuse the existing model name from OpenAISettings.
+                OpenAISettings settings = serviceProvider
+                    .GetRequiredService<IOptions<OpenAISettings>>().Value;
+
+                // Adapt the existing Responses API client to IChatClient.
+                // Our Application Service will use this common interface.
+                return openAIClient.GetResponsesClient()
+                    .AsIChatClient(settings.Model);
+            });
+#pragma warning restore OPENAI001
+
+            // Register our application-specific AI service.
+            // Scoped creates a service instance for each
+            // ASP.NET Core dependency-injection scope.
+            services.AddScoped<IOpenAITicketSummaryService, OpenAITicketSummaryService>();
+
             services.AddScoped<IPromptExperimentService, PromptExperimentService>();
+
+            // Provider-specific implementation of the text-generation contract.
             services.AddScoped<IOpenAITextGenerationService, OpenAITextGenerationService>();
+
             // Return IServiceCollection.
             return services;
         }
     }
 }
-

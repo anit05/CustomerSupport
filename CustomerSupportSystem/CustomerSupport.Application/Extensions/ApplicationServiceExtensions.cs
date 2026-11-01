@@ -21,6 +21,7 @@ namespace CustomerSupport.Application.Extensions
             services.AddScoped<ITicketAttachmentService, TicketAttachmentService>();
             services.AddScoped<ITicketAIFeatureService, TicketAIFeatureService>();
             services.AddScoped<ITicketStructuredAnalysisService, TicketStructuredAnalysisService>();
+            services.AddScoped<ITicketMicrosoftAIAnalysisService, TicketMicrosoftAIAnalysisService>();
 
             return services;
         }
