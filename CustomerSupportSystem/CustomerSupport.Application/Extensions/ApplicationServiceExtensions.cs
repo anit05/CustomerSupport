@@ -19,6 +19,9 @@ namespace CustomerSupport.Application.Extensions
 
             // Register the Ticket Attachment Application Service.
             services.AddScoped<ITicketAttachmentService, TicketAttachmentService>();
+            services.AddScoped<ITicketAIFeatureService, TicketAIFeatureService>();
+            services.AddScoped<ITicketStructuredAnalysisService, TicketStructuredAnalysisService>();
+
             return services;
         }
     }
