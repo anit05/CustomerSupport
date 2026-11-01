@@ -8,9 +8,8 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Article } from '../../../knowledge-base/models/article.model';
 import { Faq } from '../../../faqs/models/faq.model';
 import { messageFromError } from '../../../../shared/utils/http-error-message';
-import { PageHeadingComponent } from '../../../../shared/components/page-heading/page-heading.component';
 import { NoticeComponent } from '../../../../shared/components/notice/notice.component';
-@Component({ selector: 'app-content-detail', standalone: true, imports: [DatePipe, RouterLink, PageHeadingComponent, NoticeComponent], templateUrl: './content-detail.component.html' })
+@Component({ selector: 'app-content-detail', standalone: true, imports: [DatePipe, RouterLink, NoticeComponent], templateUrl: './content-detail.component.html' })
 export class ContentDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private readonly knowledgeBaseApi = inject(KnowledgeBaseService);

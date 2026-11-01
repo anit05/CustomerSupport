@@ -13,6 +13,7 @@ export class TicketsService {
   assign(id: number, supportExecutiveId: number) { return this.api.put<TicketDetails>(`api/tickets/${id}/assign`, { supportExecutiveId } satisfies AssignTicketRequest); }
   changeStatus(id: number, statusId: number, remarks: string) { return this.api.put<TicketDetails>(`api/tickets/${id}/status`, { statusId, remarks } satisfies ChangeTicketStatusRequest); }
   addComment(id: number, content: string, isInternal: boolean) { return this.api.post<TicketComment>(`api/tickets/${id}/comments`, { content, isInternal } satisfies AddTicketCommentRequest); }
+  updateClassification(id: number, categoryId: number | null, priorityId: number) { return this.api.put<TicketDetails>(`api/tickets/${id}/classification`, { categoryId, priorityId }); }
   getAssignments(id: number) { return this.api.get<TicketAssignment[]>(`api/tickets/${id}/assignments`); }
   getAttachments(id: number) { return this.api.get<TicketAttachment[]>(`api/tickets/${id}/attachments`); }
   uploadAttachment(id: number, file: File) {

@@ -17,13 +17,11 @@ import { messageFromError } from '../../../../shared/utils/http-error-message';
 
 import { NoticeComponent } from '../../../../shared/components/notice/notice.component';
 
-import { PageHeadingComponent } from '../../../../shared/components/page-heading/page-heading.component';
 
 @Component({
   selector: 'app-account',
   standalone: true,
   imports: [
-    PageHeadingComponent,
     NoticeComponent
   ],
   templateUrl: './account.component.html'

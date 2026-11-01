@@ -11,8 +11,7 @@ import { MasterValue } from '../../../master-data/models/master-value.model';
 import { Product } from '../../../products/models/product.model';
 import { messageFromError } from '../../../../shared/utils/http-error-message';
 import { NoticeComponent } from '../../../../shared/components/notice/notice.component';
-import { PageHeadingComponent } from '../../../../shared/components/page-heading/page-heading.component';
-@Component({ selector: 'app-ticket-create', standalone: true, imports: [FormsModule, RouterLink, NoticeComponent, PageHeadingComponent], templateUrl: './ticket-create.component.html' })
+@Component({ selector: 'app-ticket-create', standalone: true, imports: [FormsModule, RouterLink, NoticeComponent], templateUrl: './ticket-create.component.html' })
 export class TicketCreateComponent implements OnInit {
   private readonly categoriesApi = inject(CategoriesService);
   private readonly ticketsApi = inject(TicketsService);

@@ -5,8 +5,7 @@ import { CategoriesService } from '../../../ticket-categories/services/categorie
 import { ProductsService } from '../../../products/services/products.service';
 import { messageFromError } from '../../../../shared/utils/http-error-message';
 import { NoticeComponent } from '../../../../shared/components/notice/notice.component';
-import { PageHeadingComponent } from '../../../../shared/components/page-heading/page-heading.component';
-@Component({ selector: 'app-catalog-form', standalone: true, imports: [FormsModule, RouterLink, NoticeComponent, PageHeadingComponent], templateUrl: './catalog-form.component.html' })
+@Component({ selector: 'app-catalog-form', standalone: true, imports: [FormsModule, RouterLink, NoticeComponent], templateUrl: './catalog-form.component.html' })
 export class CatalogFormComponent implements OnInit {
   private readonly categoriesApi = inject(CategoriesService);
   private readonly productsApi = inject(ProductsService);

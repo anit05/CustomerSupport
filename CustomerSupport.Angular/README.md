@@ -1,7 +1,7 @@
 # Customer Support — Angular 21 (Feature-first architecture)
 
 A standalone Angular 21 front-end for the existing **CustomerSupport.API** (.NET 10) project.
-This is the same full Customer/Support Executive/Administrator application, reorganized for long-term maintenance.
+This version matches the supplied CustomerSupport.Mvc project in layout and feature workflows, including AI Assistance and ticket classification.
 
 ## Prerequisites
 
@@ -56,7 +56,7 @@ src/app/
 ```
 
 Every page component has its **own `.component.ts` and `.component.html`** file.
-No custom CSS file or custom CSS class is used. Layouts use Bootstrap 5.3.8 from CDN, Bootstrap utility classes, and Bootstrap Icons from CDN.
+No custom CSS file is used. Layouts use Bootstrap 5.3.8 from CDN, Bootstrap utility classes, and Bootstrap Icons from CDN.
 All routes are lazy loaded using `loadComponent`; Angular's `@if` / `@for` template control flow is used.
 
 ## Separation of responsibilities
@@ -76,7 +76,7 @@ All routes are lazy loaded using `loadComponent`; Angular's `@if` / `@for` templ
 
 ## Security and deployment notes
 
-This training implementation keeps tokens in **sessionStorage** to remain compatible with the existing
+This training implementation keeps tokens in **localStorage** to remain compatible with the existing
 JSON access/refresh-token API; JavaScript-accessible storage is vulnerable to XSS and is not the preferred
 production refresh-token architecture. For production, consider server-supported HttpOnly Secure cookie-based
 refresh-token handling, a restrictive Content Security Policy, and a backend CORS allow-list.
@@ -88,6 +88,25 @@ This ZIP contains source files but not `node_modules`, browser builds, or secret
 
 The October 2026 design revision provides a responsive dark workspace sidebar, mobile offcanvas navigation, account dropdown, cohesive page headings, dashboard summaries, modern forms, filter panels, readable data tables, prominent status badges, polished empty/error states, and a unified presentation of ticket conversations, history, and file attachments.
 
-The page bindings and existing Web API operations remain unchanged. Two visually distinct layouts are used: a full-width authentication layout for public login/registration, and a navigation workspace for authenticated customers, support executives, and administrators.
+The existing backend API contracts are reused, including the ticket-classification endpoint from the MVC application. Two visually distinct layouts are used: a full-width authentication layout for public login/registration, and a navigation workspace for authenticated customers, support executives, and administrators.
 
 Bootstrap CSS and Icons require internet access in the browser because they are loaded from CDNs. No custom stylesheets, Sass, Tailwind, Angular Material, or third-party component libraries are installed.
+
+## MVC parity: October 30, 2026
+
+Using the uploaded `CustomerSupport.Mvc(1).zip` as reference, the Angular source now includes:
+
+- Matching Bootstrap dark header, role-specific sidebar, mobile offcanvas navigation, account dropdown and page spacing.
+- Login, customer registration, Dashboard, My Tickets, Assigned Tickets, Ticket Management, Ticket Create and Ticket Details pages styled after MVC.
+- Admin Products/Categories lists and edit forms; public/admin Knowledge Base and FAQ lists, details and editors, plus the deactivate action.
+- Ticket Details comments oldest first; Ticket History and Assignment History newest first; assignment, status, attachments, comment entry, and classification.
+- **AI Assistant**: eight-field structured analysis, validated category/priority suggestions, optional Knowledge Base article, customer reply draft, internal note draft, staff editing and explicit reviewed-save workflow.
+- **Apply Suggestions**: preselect active category/priority IDs on Ticket Details and save explicitly through `PUT api/tickets/{id}/classification`. No AI-generated update is automatically persisted.
+- Role guards on the AI page and staff-only management.
+- Persistent browser storage for Angular token pairs with automatic refresh on 401 and logout on unrecoverable authentication.
+
+**Backend configuration:** The default Web API URL is `https://localhost:7158`, matching the attached MVC `appsettings.json`. Change only `src/app/core/config/api.config.ts` if your actual API runs on a different HTTPS port. The backend must allow `http://localhost:4200` in its CORS policy.
+
+**Validation:** The Angular 21 compiler (`ngc -p tsconfig.app.json --noEmit`) and the structural checks both passed. A full `ng build` could not run in this Linux environment because the uploaded `node_modules` came from Windows and contain Windows-only esbuild binaries; network access was unavailable to install the Linux binary. The ZIP intentionally omits `node_modules`; use `npm install` on your Windows machine before `npm run build`.
+
+**Note:** Bootstrap's final appearance also depends on the same fonts, browser sizing, and content values as your MVC app. Matching structure and styling do not imply screenshot-level pixel equality in every viewport.

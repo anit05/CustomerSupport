@@ -37,7 +37,7 @@ for (const file of tsFiles) {
 }
 
 const routeCount = (routes.match(/\bpath:\s*'/g) ?? []).length - 2; // Excludes '' and wildcard redirects.
-assert.equal(routeCount, 30, 'Expected 30 documented front-end page routes');
+assert.equal(routeCount, 31, 'Expected 30 documented front-end page routes');
 assert.ok(routes.includes('loadComponent'), 'Lazy loading is required');
 assert.ok(!files.some(f => f.endsWith('.css')), 'No custom stylesheet is expected');
 assert.ok(!files.some(f => /core\/models\.ts$|support-api\.service\.ts$/.test(f)),

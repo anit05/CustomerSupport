@@ -10,8 +10,7 @@ import { Article, CreateArticleRequest } from '../../../knowledge-base/models/ar
 import { Faq, CreateFaqRequest } from '../../../faqs/models/faq.model';
 import { messageFromError } from '../../../../shared/utils/http-error-message';
 import { NoticeComponent } from '../../../../shared/components/notice/notice.component';
-import { PageHeadingComponent } from '../../../../shared/components/page-heading/page-heading.component';
-@Component({ selector: 'app-content-form', standalone: true, imports: [FormsModule, RouterLink, NoticeComponent, PageHeadingComponent], templateUrl: './content-form.component.html' })
+@Component({ selector: 'app-content-form', standalone: true, imports: [FormsModule, RouterLink, NoticeComponent], templateUrl: './content-form.component.html' })
 export class ContentFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -85,4 +84,18 @@ export class ContentFormComponent implements OnInit {
       }
     });
   }
+  // Match the MVC editor: Administrators can deactivate a published resource.
+  deactivate(): void {
+    if (!this.editing || !confirm(`Deactivate this ${this.type === 'faqs' ? 'FAQ' : 'article'}?`)) return;
+    this.saving.set(true);
+    this.error.set('');
+    const operation = this.type === 'faqs'
+      ? this.faqsApi.deactivate(this.id)
+      : this.knowledgeBaseApi.deactivate(this.id);
+    operation.subscribe({
+      next: () => void this.router.navigateByUrl(this.backUrl),
+      error: e => { this.error.set(messageFromError(e)); this.saving.set(false); }
+    });
+  }
+
 }

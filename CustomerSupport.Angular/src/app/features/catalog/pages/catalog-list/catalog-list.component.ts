@@ -7,16 +7,14 @@ import { ProductsService } from '../../../products/services/products.service';
 import { Category } from '../../../ticket-categories/models/category.model';
 import { Product } from '../../../products/models/product.model';
 import { messageFromError } from '../../../../shared/utils/http-error-message';
-import { PageHeadingComponent } from '../../../../shared/components/page-heading/page-heading.component';
 import { NoticeComponent } from '../../../../shared/components/notice/notice.component';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-@Component({ selector: 'app-catalog-list', standalone: true, imports: [RouterLink, PageHeadingComponent, NoticeComponent, EmptyStateComponent], templateUrl: './catalog-list.component.html' })
+@Component({ selector: 'app-catalog-list', standalone: true, imports: [RouterLink, NoticeComponent], templateUrl: './catalog-list.component.html' })
 export class CatalogListComponent implements OnInit {
   private readonly categoriesApi = inject(CategoriesService);
   private readonly productsApi = inject(ProductsService);
   private route = inject(ActivatedRoute);
   type = this.route.snapshot.data['type'] as 'products' | 'categories';
-  heading = this.type === 'products' ? 'Product management' : 'Ticket category management';
+  heading = this.type === 'products' ? 'Products' : 'Ticket categories';
   description = this.type === 'products' ? 'Maintain your product catalog and active states.' : 'Organize tickets using relevant service categories.';
   singular = this.type === 'products' ? 'Product' : 'Category';
   base = this.type === 'products' ? '/admin/products' : '/admin/ticket-categories';

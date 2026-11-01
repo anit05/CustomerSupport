@@ -12,7 +12,7 @@ interface Session {
 }
 function readSession(): Session | null {
   try {
-    return JSON.parse((typeof sessionStorage === 'undefined' ? null : sessionStorage.getItem(KEY)) || 'null') as Session | null;
+    return JSON.parse((typeof localStorage === 'undefined' ? null : localStorage.getItem(KEY)) || 'null') as Session | null;
   }
   catch {
     return null;
@@ -52,8 +52,8 @@ export class AuthService {
   }
   clear(): void {
     this.state.set(null);
-    if (typeof sessionStorage !== 'undefined')
-      sessionStorage.removeItem(KEY);
+    if (typeof localStorage !== 'undefined')
+      localStorage.removeItem(KEY);
   }
   private save(data: AuthResponse): void {
     const session: Session = {
@@ -61,8 +61,8 @@ export class AuthService {
       accessTokenExpiresAt: data.accessTokenExpiresAt, refreshTokenExpiresAt: data.refreshTokenExpiresAt
     };
     this.state.set(session);
-    if (typeof sessionStorage !== 'undefined')
-      sessionStorage.setItem(KEY, JSON.stringify(session));
+    if (typeof localStorage !== 'undefined')
+      localStorage.setItem(KEY, JSON.stringify(session));
   }
   home(): string {
     switch (this.role()) {

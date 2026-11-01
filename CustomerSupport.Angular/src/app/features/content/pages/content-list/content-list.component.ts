@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { KnowledgeBaseService } from '../../../knowledge-base/services/knowledge-base.service';
@@ -10,10 +11,9 @@ import { Faq } from '../../../faqs/models/faq.model';
 import { Product } from '../../../products/models/product.model';
 import { PageResult } from '../../../../shared/models/paged-result.model';
 import { messageFromError } from '../../../../shared/utils/http-error-message';
-import { PageHeadingComponent } from '../../../../shared/components/page-heading/page-heading.component';
 import { NoticeComponent } from '../../../../shared/components/notice/notice.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-@Component({ selector: 'app-content-list', standalone: true, imports: [FormsModule, RouterLink, PageHeadingComponent, NoticeComponent, EmptyStateComponent], templateUrl: './content-list.component.html' })
+@Component({ selector: 'app-content-list', standalone: true, imports: [FormsModule, RouterLink, DatePipe, NoticeComponent], templateUrl: './content-list.component.html' })
 export class ContentListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private readonly knowledgeBaseApi = inject(KnowledgeBaseService);
@@ -35,6 +35,7 @@ export class ContentListComponent implements OnInit {
   pageNumber = 1;
   ngOnInit() { this.productsApi.getAll(this.management).subscribe({ next: x => this.products.set(x), error: e => this.error.set(messageFromError(e)) }); this.load(); }
   label(item: Article | Faq) { return this.type === 'faqs' ? (item as Faq).question : (item as Article).title; }
+  excerptFull(item: Article | Faq): string { return this.type === 'faqs' ? (item as Faq).answer : (item as Article).content; }
   excerpt(item: Article | Faq) { const raw = this.type === 'faqs' ? (item as Faq).answer : (item as Article).content; return raw.length > 200 ? raw.slice(0, 200) + '…' : raw; }
   isPublished(item: Article | Faq) { return (item as Article).isPublished; }
   load() {

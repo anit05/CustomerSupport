@@ -1,0 +1,461 @@
+
+@if (loading()) {
+
+  <div class="text-center py-5 text-secondary">
+    <span class="spinner-border spinner-border-sm me-2"></span>
+    Loading ticket...
+  </div>
+
+} @else if (ticket(); as t) {
+
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+
+    <div>
+      <a class="text-decoration-none small"
+         [routerLink]="['/tickets', t.id]">
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to ticket details
+      </a>
+
+      <h1 class="h2 fw-bold mt-2 mb-1">
+        <i class="bi bi-stars text-primary me-2"></i>
+        AI Assistant
+      </h1>
+
+      <p class="text-secondary mb-0">
+        {{ t.ticketNumber }} · {{ t.subject }}
+      </p>
+    </div>
+
+    <span class="badge text-bg-light border p-2">
+      {{ t.statusName }}
+    </span>
+
+  </div>
+
+  <!-- Messages -->
+  <app-notice [message]="error()" />
+  <app-notice [message]="success()" kind="success" />
+
+  <div class="alert alert-info border-0 rounded-3">
+    <i class="bi bi-info-circle me-2"></i>
+    AI results are suggestions. Review all generated content
+    before using or saving it.
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Left Side: AI Operations -->
+    <div class="col-xl-5">
+
+      <!-- Analyze Ticket -->
+      <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-4">
+
+          <h2 class="h5 fw-bold mb-2">
+            1. Analyze this ticket
+          </h2>
+
+          <p class="text-secondary small">
+            Generate a structured problem summary,
+            actions tried, next step, sentiment,
+            category and priority suggestions.
+          </p>
+
+          <!-- UPDATED: Working state only for Analyze Ticket -->
+          <button type="button"
+                  class="btn btn-primary w-100"
+                  [disabled]="busy()"
+                  (click)="analyze()">
+
+            @if (workingAction() === 'analysis') {
+
+              <span class="spinner-border spinner-border-sm me-2"
+                    aria-hidden="true"></span>
+              Working...
+
+            } @else {
+
+              <i class="bi bi-clipboard-data me-2"></i>
+              Analyze ticket
+
+            }
+
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Generate Draft -->
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+
+          <h2 class="h5 fw-bold mb-2">
+            2. Generate a draft
+          </h2>
+
+          <p class="text-secondary small">
+            Choose a customer reply or a staff-only internal note.
+          </p>
+
+          <label class="form-label fw-semibold"
+                 for="articleId">
+            Knowledge Base article (optional)
+          </label>
+
+          <select class="form-select mb-2"
+                  id="articleId"
+                  [(ngModel)]="articleId"
+                  [disabled]="busy()">
+
+            <option [ngValue]="null">No article</option>
+
+            @for (a of articles(); track a.id) {
+              <option [ngValue]="a.id">
+                {{ a.title }}
+              </option>
+            }
+
+          </select>
+
+          <p class="text-secondary small">
+            Only active, published articles for this product
+            are shown. The API validates the selection again.
+          </p>
+
+          <div class="d-grid gap-2">
+
+            <!-- UPDATED: Customer Reply Working State -->
+            <button class="btn btn-primary"
+                    type="button"
+                    [disabled]="busy()"
+                    (click)="generateDraft(false)">
+
+              @if (workingAction() === 'reply') {
+
+                <span class="spinner-border spinner-border-sm me-2"
+                      aria-hidden="true"></span>
+                Working...
+
+              } @else {
+
+                <i class="bi bi-chat-left-text me-2"></i>
+                Generate customer reply
+
+              }
+
+            </button>
+
+            <!-- UPDATED: Internal Note Working State -->
+            <button class="btn btn-outline-primary"
+                    type="button"
+                    [disabled]="busy()"
+                    (click)="generateDraft(true)">
+
+              @if (workingAction() === 'internal') {
+
+                <span class="spinner-border spinner-border-sm me-2"
+                      aria-hidden="true"></span>
+                Working...
+
+              } @else {
+
+                <i class="bi bi-journal-text me-2"></i>
+                Generate internal note
+
+              }
+
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: AI Results -->
+    <div class="col-xl-7">
+
+      <!-- Structured Analysis -->
+      @if (analysis(); as a) {
+
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+          <div class="card-header bg-white p-4">
+            <h2 class="h5 fw-bold mb-0">
+              Structured ticket analysis
+            </h2>
+          </div>
+
+          <div class="card-body p-4">
+
+            <h3 class="h6 fw-bold">Problem</h3>
+            <p class="text-break">{{ a.analysis.problem }}</p>
+
+            <h3 class="h6 fw-bold">Actions tried</h3>
+
+            @if (!a.analysis.actionsTried.length) {
+              <p class="text-secondary">No actions recorded.</p>
+            } @else {
+              <ul>
+                @for (action of a.analysis.actionsTried; track $index) {
+                  <li class="text-break">{{ action }}</li>
+                }
+              </ul>
+            }
+
+            <h3 class="h6 fw-bold">Next step</h3>
+            <p class="text-break">{{ a.analysis.nextStep }}</p>
+
+            <dl class="row gy-2 mb-3">
+
+              <dt class="col-sm-5 text-secondary">
+                Sentiment
+              </dt>
+              <dd class="col-sm-7">
+                {{ a.analysis.sentiment }}
+              </dd>
+
+              <dt class="col-sm-5 text-secondary">
+                Suggested category
+              </dt>
+              <dd class="col-sm-7">
+                {{ a.analysis.suggestedCategory || 'Not suggested' }}
+              </dd>
+
+              <dt class="col-sm-5 text-secondary">
+                Suggested priority
+              </dt>
+              <dd class="col-sm-7">
+                {{ a.analysis.suggestedPriority || 'Not suggested' }}
+              </dd>
+
+              <dt class="col-sm-5 text-secondary">
+                Confirmed resolution date
+              </dt>
+              <dd class="col-sm-7">
+                {{ a.analysis.confirmedResolutionDate || 'Not confirmed' }}
+              </dd>
+
+              <dt class="col-sm-5 text-secondary">
+                Requires human review
+              </dt>
+              <dd class="col-sm-7">
+                {{ a.analysis.requiresHumanReview ? 'Yes' : 'No' }}
+              </dd>
+
+            </dl>
+
+            <!-- Apply AI Suggestions -->
+            @if (
+              t.statusId !== 5 &&
+              (
+                a.suggestedCategoryId != null ||
+                a.suggestedPriorityId != null
+              )
+            ) {
+
+              <div class="border rounded-3 p-3 mb-3">
+
+                <h3 class="h6 fw-bold">
+                  Apply AI suggestions
+                </h3>
+
+                <p class="small text-secondary">
+                  Review the suggested Category and Priority
+                  on Ticket Details before saving.
+                </p>
+
+                <button class="btn btn-success w-100"
+                        type="button"
+                        [disabled]="busy()"
+                        (click)="applySuggestions()">
+
+                  <i class="bi bi-check2-square me-2"></i>
+                  Apply Suggestions
+
+                </button>
+
+                <p class="small text-secondary mt-2 mb-0">
+                  Nothing is saved until you confirm
+                  on Ticket Details.
+                </p>
+
+              </div>
+            }
+
+            <p class="text-secondary small mb-0">
+              Provider: {{ a.provider }}
+              <br>
+              Model: {{ a.model }}
+              <br>
+              Tokens:
+              {{ a.inputTokens }} input,
+              {{ a.outputTokens }} output,
+              {{ a.totalTokens }} total
+            </p>
+
+          </div>
+        </div>
+      }
+
+      <!-- Generated Draft -->
+      @if (draft(); as d) {
+
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+          <div class="card-header bg-white p-4">
+            <h2 class="h5 fw-bold mb-0">
+              {{ draftTitle }}
+            </h2>
+          </div>
+
+          <div class="card-body p-4">
+
+            <p class="text-secondary small">
+              Generated with {{ d.provider }}
+              · {{ d.model }}
+              · {{ d.totalTokens }} tokens
+            </p>
+
+            @if (t.statusId === 5) {
+              <div class="alert alert-warning">
+                This ticket is closed and cannot accept comments.
+              </div>
+            }
+
+            <form #reviewForm="ngForm"
+                  (ngSubmit)="saveDraft()">
+
+              <label class="form-label fw-semibold"
+                     for="approvedText">
+                Review and edit the draft
+              </label>
+
+              <textarea id="approvedText"
+                        name="approvedText"
+                        class="form-control mb-3"
+                        rows="9"
+                        maxlength="1900"
+                        required
+                        [(ngModel)]="draftText"
+                        [disabled]="busy()"></textarea>
+
+              <label class="form-label fw-semibold"
+                     for="commentVisibility">
+                Save as
+              </label>
+
+              <select class="form-select mb-3"
+                      id="commentVisibility"
+                      name="isInternal"
+                      [(ngModel)]="isInternal"
+                      [disabled]="busy()">
+
+                <option [ngValue]="true">
+                  Internal support comment
+                </option>
+
+                <option [ngValue]="false">
+                  Customer-visible comment
+                </option>
+
+              </select>
+
+              <div class="form-check mb-3">
+
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="confirmCustomerVisible"
+                       name="confirmCustomerVisible"
+                       [(ngModel)]="confirmCustomerVisible"
+                       [disabled]="busy()">
+
+                <label class="form-check-label small"
+                       for="confirmCustomerVisible">
+                  I confirm that any customer-visible comment
+                  is accurate and contains no confidential
+                  information.
+                </label>
+
+              </div>
+
+              <p class="small text-secondary">
+                Confirmation is required for public comments.
+                Saving does not send an email.
+              </p>
+
+              <!-- Save Button -->
+              <button class="btn btn-success"
+                      type="submit"
+                      [disabled]="busy() || reviewForm.invalid || t.statusId === 5">
+
+                @if (workingAction() === 'save') {
+
+                  <span class="spinner-border spinner-border-sm me-2"
+                        aria-hidden="true"></span>
+                  Saving...
+
+                } @else {
+
+                  <i class="bi bi-check2-circle me-2"></i>
+                  Save reviewed comment
+
+                }
+
+              </button>
+
+            </form>
+
+          </div>
+        </div>
+
+      } @else if (!analysis()) {
+
+        <!-- AI Results Placeholder -->
+        <div class="card shadow-sm border-0 rounded-4">
+
+          <div class="card-body p-5 text-center text-secondary">
+
+            @if (busy()) {
+
+              <span class="spinner-border text-primary"
+                    role="status"
+                    aria-label="Generating AI result"></span>
+
+              <h2 class="h5 fw-bold mt-3">
+                Generating AI result...
+              </h2>
+
+              <p class="mb-0">
+                The selected AI operation is in progress.
+              </p>
+
+            } @else {
+
+              <i class="bi bi-stars fs-1 text-primary"></i>
+
+              <h2 class="h5 fw-bold mt-3">
+                AI results appear here
+              </h2>
+
+              <p class="mb-0">
+                Analyze the ticket or generate a draft to begin.
+              </p>
+
+            }
+
+          </div>
+        </div>
+
+      }
+
+    </div>
+  </div>
+
+} @else {
+
+  <app-notice [message]="error()" />
+
+}
