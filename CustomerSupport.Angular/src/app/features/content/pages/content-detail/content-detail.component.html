@@ -1,0 +1,10 @@
+@if (loading()) { <div class="text-secondary py-5">Loading resource...</div> }
+@else if (item(); as x) {
+  <div class="row justify-content-center"><div [class]="type==='faqs'?'col-xl-9':'col-xl-10'"><a class="small text-decoration-none" [routerLink]="backUrl"><i class="bi bi-arrow-left me-1"></i>{{type==='faqs'?'All FAQs':'All articles'}}</a>
+    <div class="card border-0 shadow-sm rounded-4 mt-3"><div class="card-body p-4 p-lg-5"><span class="badge text-bg-primary mb-3">{{x.productName || (type==='faqs'?'General':'General article')}}</span>
+      <h1 class="fw-bold" [class]="type==='faqs'?'h3 mb-4':'h2'">{{label(x)}}</h1>
+      @if (type==='knowledge-base') { <p class="text-secondary small">Published content · {{x.createdAt | date:'dd MMM yyyy'}}</p><hr class="my-4"> }
+      <div class="text-break" [style.white-space]="'pre-wrap'">{{body(x)}}</div>
+    </div></div>
+  </div></div>
+} @else {<app-notice [message]="error()" />}

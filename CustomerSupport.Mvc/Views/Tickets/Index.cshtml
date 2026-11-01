@@ -1,0 +1,25 @@
+@model TicketListPage
+@{ViewData["Title"]=Model.Title;var basePath=Model.IsCustomer?"/tickets/my":User.IsInRole("Administrator")?"/admin/tickets":"/support/tickets";}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4"><div><h1 class="h2 fw-bold mb-1">@Model.Title</h1><p class="text-secondary mb-0">Track requests, priorities, and status updates.</p></div>
+@if(Model.IsCustomer){<a href="/tickets/new" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Create ticket</a>}</div>
+@if(!Model.IsCustomer)
+{
+    <div class="card shadow-sm border-0 rounded-4 mb-4"><div class="card-body p-3 p-lg-4">
+    <form method="get" action="@basePath"><div class="row g-3 align-items-end">
+        <div class="col-md-4"><label for="search" class="form-label fw-semibold small">Search</label><input id="search" class="form-control" name="Search" value="@Model.Filter.Search" placeholder="Ticket number or subject" /></div>
+        <div class="col-md-3"><label for="status" class="form-label fw-semibold small">Status</label><select id="status" class="form-select" name="StatusId"><option value="">All statuses</option>@foreach(var s in Model.Statuses){if(Model.Filter.StatusId==s.Id){<option value="@s.Id" selected>@s.Name</option>}else{<option value="@s.Id">@s.Name</option>}}</select></div>
+        <div class="col-md-3"><label for="priority" class="form-label fw-semibold small">Priority</label><select id="priority" class="form-select" name="PriorityId"><option value="">All priorities</option>@foreach(var s in Model.Priorities){if(Model.Filter.PriorityId==s.Id){<option value="@s.Id" selected>@s.Name</option>}else{<option value="@s.Id">@s.Name</option>}}</select></div>
+        <div class="col-md-2 d-grid"><button class="btn btn-primary" type="submit"><i class="bi bi-search me-1"></i>Filter</button></div>
+        <input type="hidden" name="PageSize" value="@Model.Filter.PageSize" />
+    </div></form></div></div>
+}
+<div class="card border-0 shadow-sm rounded-4"><div class="card-header bg-white border-bottom p-4 d-flex justify-content-between"><span class="fw-bold">Tickets</span><span class="small text-secondary">@(Model.IsCustomer?Model.MyTickets.Count:Model.Results.TotalRecords) result(s)</span></div>
+@await Html.PartialAsync("_TicketTable", Model.IsCustomer?Model.MyTickets:Model.Results.Items)
+@if(!Model.IsCustomer && Model.Results.TotalPages>1)
+{
+    <div class="card-footer bg-white px-4 py-3 d-flex align-items-center justify-content-between"><span class="text-secondary small">Page @Model.Results.PageNumber of @Model.Results.TotalPages</span><div class="btn-group">
+        @if(Model.Results.HasPreviousPage){<a class="btn btn-outline-primary btn-sm" href="@basePath?PageNumber=@(Model.Results.PageNumber-1)&amp;PageSize=@Model.Filter.PageSize&amp;Search=@Uri.EscapeDataString(Model.Filter.Search??"")&amp;StatusId=@Model.Filter.StatusId&amp;PriorityId=@Model.Filter.PriorityId">Previous</a>}
+        @if(Model.Results.HasNextPage){<a class="btn btn-outline-primary btn-sm" href="@basePath?PageNumber=@(Model.Results.PageNumber+1)&amp;PageSize=@Model.Filter.PageSize&amp;Search=@Uri.EscapeDataString(Model.Filter.Search??"")&amp;StatusId=@Model.Filter.StatusId&amp;PriorityId=@Model.Filter.PriorityId">Next</a>}
+    </div></div>
+}
+</div>

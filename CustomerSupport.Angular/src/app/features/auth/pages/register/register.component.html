@@ -1,0 +1,12 @@
+<div class="row justify-content-center"><div class="col-12 col-lg-8 col-xl-7"><div class="card shadow-sm border-0 rounded-4"><div class="card-body p-4 p-lg-5"><div class="mb-4"><span class="badge text-bg-primary mb-2">Customer registration</span><h1 class="h3 fw-bold">Create an account</h1><p class="text-secondary">Register as a customer to create and track support tickets.</p></div>
+<app-notice [message]="error()" /><form #form="ngForm" (ngSubmit)="submit()"><div class="row g-3">
+<div class="col-md-6"><label class="form-label fw-semibold" for="firstName">First name</label><input id="firstName" name="firstName" class="form-control" [(ngModel)]="model.firstName" required minlength="2"></div>
+<div class="col-md-6"><label class="form-label fw-semibold" for="lastName">Last name</label><input id="lastName" name="lastName" class="form-control" [(ngModel)]="model.lastName" required minlength="2"></div>
+<div class="col-md-6"><label class="form-label fw-semibold" for="email">Email address</label><input id="email" name="email" class="form-control" type="email" [(ngModel)]="model.email" email required></div>
+<div class="col-md-6"><label class="form-label fw-semibold" for="phoneNumber">Phone (optional)</label><input id="phoneNumber" name="phoneNumber" class="form-control" [(ngModel)]="model.phoneNumber"></div>
+<div class="col-md-6"><label class="form-label fw-semibold" for="password">Password</label><input id="password" name="password" class="form-control" type="password" [(ngModel)]="model.password" required minlength="8" autocomplete="new-password"></div>
+<div class="col-md-6"><label class="form-label fw-semibold" for="confirmPassword">Confirm password</label><input id="confirmPassword" name="confirmPassword" class="form-control" type="password" [(ngModel)]="model.confirmPassword" required autocomplete="new-password"></div>
+</div>
+@if (model.password && model.confirmPassword && model.password!==model.confirmPassword) {<div class="text-danger mt-2 small">Passwords must match.</div>}
+<button type="submit" class="btn btn-primary mt-4 px-4 py-2 fw-semibold" [disabled]="form.invalid || busy() || model.password !== model.confirmPassword"><i class="bi bi-person-plus me-2"></i>{{busy()?'Creating account...':'Create account'}}</button><a routerLink="/login" class="btn btn-link mt-4 ms-2 text-decoration-none">Already registered?</a>
+</form></div></div></div></div>

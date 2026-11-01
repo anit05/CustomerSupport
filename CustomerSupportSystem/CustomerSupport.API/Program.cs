@@ -1,134 +1,175 @@
 using CustomerSupport.API.Extensions;
 using CustomerSupport.Application.Extensions;
 using CustomerSupport.Infrastructure.Extensions;
+using Serilog;
 
 namespace CustomerSupport.API
 {
-    public class Program
+  public class Program
+  {
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+      var builder = WebApplication.CreateBuilder(args);
+
+      // Add services to the container.
+      builder.Services.AddControllers();
+
+      // Configure Serilog as the application's logging provider.
+      builder.AddSerilogLogging();
+
+      // Register ASP.NET Core's built-in OpenAPI document generation. 
+      // This generates the OpenAPI specification that describes 
+      // our API endpoints, request DTOs, response DTOs, and schemas.
+      builder.Services.AddOpenApi();
+
+      var connectionString =
+          builder.Configuration.GetConnectionString("CustomerSupportDBConnection")
+          ?? throw new InvalidOperationException("CustomerSupportDBConnection is not configured.");
+
+      // Read the relative Attachment-storage folder from configuration.
+      var relativeAttachmentPath =
+          builder.Configuration["LocalFileStorage:TicketAttachmentsPath"]
+          ?? "Storage/TicketAttachments";
+
+      // Convert the relative folder into an absolute path under the API project.
+      // The database will still store only relative Attachment paths.
+      var localAttachmentRootPath = Path.GetFullPath(
+          Path.Combine(builder.Environment.ContentRootPath, relativeAttachmentPath));
+
+      // Pass the Local storage root to Infrastructure.
+      builder.Services.AddInfrastructureServices(connectionString, localAttachmentRootPath);
+
+      // Register the application's global exception handler.
+      // This allows unhandled exceptions from the application
+      // to be processed by GlobalExceptionHandler.
+      builder.Services.AddGlobalExceptionHandling();
+
+      builder.Services.AddApplicationServices();
+
+      // Configure JWT Bearer Authentication.
+      // This method reads JWT settings from configuration and registers:
+      // - JWT Bearer authentication
+      // - Signing-key validation
+      // - Issuer validation
+      // - Audience validation
+      // - Token lifetime validation
+      // - Name and Role claim configuration
+      // It enables ASP.NET Core to authenticate requests containing:
+      // Authorization: Bearer <access-token>
+      builder.Services.AddJwtAuthentication(builder.Configuration);
+
+      // Register Authorization and Current User services.
+      // This extension method registers:
+      // - ASP.NET Core Authorization
+      // - IHttpContextAccessor
+      // - ICurrentUserService -> CurrentUserService
+
+      // CurrentUserService allows the Application layer
+      // to access the authenticated User's:
+      // - UserId
+      // - FullName
+      // - Email
+      // - Role
+      // without directly depending on HttpContext.
+      builder.Services.AddApiAuthorization();
+
+      // Register CORS services.
+      builder.Services.AddCors(options =>
+      {
+        // Create a named CORS policy for our Angular application.
+        options.AddPolicy("AngularPolicy", policy =>
         {
-            var builder = WebApplication.CreateBuilder(args);
+          policy
+              // Allow requests from the Angular application.
+              .WithOrigins("http://localhost:4200")
 
-            // Add services to the container.
-            builder.Services.AddControllers();
+              // Allow HTTP methods such as
+              // GET, POST, PUT, PATCH, and DELETE.
+              .AllowAnyMethod()
 
-            // Register ASP.NET Core's built-in OpenAPI document generation. 
-            // This generates the OpenAPI specification that describes 
-            // our API endpoints, request DTOs, response DTOs, and schemas.
-            builder.Services.AddOpenApi();
+              // Allow request headers such as
+              // Content-Type and Authorization.
+              .AllowAnyHeader();
+        });
+      });
 
-            var connectionString =
-                builder.Configuration.GetConnectionString("CustomerSupportDBConnection")
-                ?? throw new InvalidOperationException("CustomerSupportDBConnection is not configured.");
+      //OpenAI Registration
+      builder.Services.AddOpenAISetup(builder.Configuration);
 
-            // Read the relative Attachment-storage folder from configuration.
-            var relativeAttachmentPath =
-                builder.Configuration["LocalFileStorage:TicketAttachmentsPath"]
-                ?? "Storage/TicketAttachments";
+      var app = builder.Build();
 
-            // Convert the relative folder into an absolute path under the API project.
-            // The database will still store only relative Attachment paths.
-            var localAttachmentRootPath = Path.GetFullPath(
-                Path.Combine(builder.Environment.ContentRootPath, relativeAttachmentPath));
+      // Expose OpenAPI and Swagger UI only in Development.
+      if (app.Environment.IsDevelopment())
+      {
+        // Map the generated OpenAPI JSON document.
+        // The default document will be available at: /openapi/v1.json
+        app.MapOpenApi();
 
-            // Pass the Local storage root to Infrastructure.
-            builder.Services.AddInfrastructureServices(connectionString, localAttachmentRootPath);
+        // Enable the interactive Swagger UI.
+        // Swagger UI allows us to:
+        // - View available API endpoints
+        // - Inspect request and response models
+        // - Send requests directly from the browser
+        // - Test the API during development
+        app.UseSwaggerUI(options =>
+        {
+          // Tell Swagger UI where the generated
+          // OpenAPI document can be found.
+          options.SwaggerEndpoint(
+              "/openapi/v1.json",
+              "Customer Support API v1");
 
-            // Register the application's global exception handler.
-            // This allows unhandled exceptions from the application
-            // to be processed by GlobalExceptionHandler.
-            builder.Services.AddGlobalExceptionHandling();
+          // Swagger UI will be available at: /swagger
+          options.RoutePrefix = "swagger";
+        });
+      }
 
-            builder.Services.AddApplicationServices();
+      // Adds ASP.NET Core's TraceIdentifier to Serilog LogContext.
+      // All log statements generated while processing the same HTTP
+      // request can therefore contain the same TraceIdentifier.
+      app.UseTraceIdentifierLogging();
 
-            // Configure JWT Bearer Authentication.
-            // This method reads JWT settings from configuration and registers:
-            // - JWT Bearer authentication
-            // - Signing-key validation
-            // - Issuer validation
-            // - Audience validation
-            // - Token lifetime validation
-            // - Name and Role claim configuration
-            // It enables ASP.NET Core to authenticate requests containing:
-            // Authorization: Bearer <access-token>
-            builder.Services.AddJwtAuthentication(builder.Configuration);
+      // Logs one structured summary entry for every HTTP request.
+      // Typical information includes request path, status code, and execution time.
+      app.UseSerilogRequestLogging();
 
-            // Register Authorization and Current User services.
-            // This extension method registers:
-            // - ASP.NET Core Authorization
-            // - IHttpContextAccessor
-            // - ICurrentUserService -> CurrentUserService
+      // Add the global exception handling middleware to the HTTP request pipeline.
+      // When an unhandled exception occurs,
+      // ASP.NET Core forwards it to the registered exception handler.
+      app.UseExceptionHandler();
 
-            // CurrentUserService allows the Application layer
-            // to access the authenticated User's:
-            // - UserId
-            // - FullName
-            // - Email
-            // - Role
-            // without directly depending on HttpContext.
-            builder.Services.AddApiAuthorization();
+      app.UseHttpsRedirection();
 
-            var app = builder.Build();
+      // Enable CORS using the AngularPolicy.
+      // This must run before Authentication and Authorization.
+      app.UseCors("AngularPolicy");
 
-            // Expose OpenAPI and Swagger UI only in Development.
-            if (app.Environment.IsDevelopment())
-            {
-                // Map the generated OpenAPI JSON document.
-                // The default document will be available at: /openapi/v1.json
-                app.MapOpenApi();
+      // Authenticate the current request.
+      // The JWT Bearer middleware looks for:
+      // Authorization: Bearer <access-token>
 
-                // Enable the interactive Swagger UI.
-                // Swagger UI allows us to:
-                // - View available API endpoints
-                // - Inspect request and response models
-                // - Send requests directly from the browser
-                // - Test the API during development
-                app.UseSwaggerUI(options =>
-                {
-                    // Tell Swagger UI where the generated
-                    // OpenAPI document can be found.
-                    options.SwaggerEndpoint(
-                        "/openapi/v1.json",
-                        "Customer Support API v1");
+      // If a valid Access Token is present, ASP.NET Core creates
+      // an authenticated ClaimsPrincipal and places it in:
+      // HttpContext.User
 
-                    // Swagger UI will be available at: /swagger
-                    options.RoutePrefix = "swagger";
-                });
-            }
+      // Later components can read User ID, Name, Email, and Role
+      // information from the JWT Claims.
+      app.UseAuthentication();
 
-            // Add the global exception handling middleware to the HTTP request pipeline.
-            // When an unhandled exception occurs,
-            // ASP.NET Core forwards it to the registered exception handler.
-            app.UseExceptionHandler();
+      // Perform authorization after authentication.
+      // This middleware processes attributes such as:
+      // [Authorize]
+      // [Authorize(Roles = "Administrator")]
+      // [AllowAnonymous]
 
-            app.UseHttpsRedirection();
+      // UseAuthorization must come after UseAuthentication
+      // because authorization needs to know the authenticated User.
+      app.UseAuthorization();
 
-            // Authenticate the current request.
-            // The JWT Bearer middleware looks for:
-            // Authorization: Bearer <access-token>
+      app.MapControllers();
 
-            // If a valid Access Token is present, ASP.NET Core creates
-            // an authenticated ClaimsPrincipal and places it in:
-            // HttpContext.User
-
-            // Later components can read User ID, Name, Email, and Role
-            // information from the JWT Claims.
-            app.UseAuthentication();
-
-            // Perform authorization after authentication.
-            // This middleware processes attributes such as:
-            // [Authorize]
-            // [Authorize(Roles = "Administrator")]
-            // [AllowAnonymous]
-
-            // UseAuthorization must come after UseAuthentication
-            // because authorization needs to know the authenticated User.
-            app.UseAuthorization();
-
-            app.MapControllers();
-
-            app.Run();
-        }
+      app.Run();
     }
+  }
 }
+

@@ -24,7 +24,7 @@ namespace CustomerSupport.Infrastructure.Data
     public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
     public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
     public DbSet<KnowledgeBaseArticle> KnowledgeBaseArticles => Set<KnowledgeBaseArticle>();
-    // public DbSet<FAQ> FAQs => Set<FAQ>();
+    public DbSet<FAQ> FAQs => Set<FAQ>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

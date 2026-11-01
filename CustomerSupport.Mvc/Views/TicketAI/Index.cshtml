@@ -1,0 +1,414 @@
+@model TicketAIPage
+
+@{
+    ViewData["Title"] = "AI Assistant";
+    var ticket = Model.Ticket;
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+    <div>
+        <a class="text-decoration-none small"
+           href="/tickets/@ticket.Id">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to ticket details
+        </a>
+
+        <h1 class="h2 fw-bold mt-2 mb-1">
+            <i class="bi bi-stars text-primary me-2"></i>
+            AI Assistant
+        </h1>
+
+        <p class="text-secondary mb-0">
+            @ticket.TicketNumber · @ticket.Subject
+        </p>
+    </div>
+
+    <span class="badge text-bg-light border p-2">
+        @ticket.StatusName
+    </span>
+</div>
+
+<div asp-validation-summary="All"
+     class="text-danger mb-3"></div>
+
+<div class="alert alert-info border-0 rounded-3">
+    <i class="bi bi-info-circle me-2"></i>
+    AI results are suggestions. Review all generated content
+    before using or saving it.
+</div>
+
+<div class="row g-4">
+
+    <!-- Left Side: AI Operations -->
+    <div class="col-xl-5">
+
+        <!-- Ticket Analysis -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body p-4">
+
+                <h2 class="h5 fw-bold mb-2">
+                    1. Analyze this ticket
+                </h2>
+
+                <p class="text-secondary small">
+                    Generate a structured summary, sentiment,
+                    recommended category, and priority.
+                </p>
+
+                <form method="post"
+                      action="/tickets/@ticket.Id/ai/analysis">
+
+                    @Html.AntiForgeryToken()
+
+                    <button class="btn btn-primary w-100"
+                            type="submit">
+                        <i class="bi bi-clipboard-data me-2"></i>
+                        Analyze ticket
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Draft Generation -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+
+                <h2 class="h5 fw-bold mb-2">
+                    2. Generate a draft
+                </h2>
+
+                <p class="text-secondary small">
+                    Generate a customer reply or an internal
+                    support note.
+                </p>
+
+                <form method="post"
+                      action="/tickets/@ticket.Id/ai/reply-draft">
+
+                    @Html.AntiForgeryToken()
+
+                    <label class="form-label fw-semibold"
+                           for="articleId">
+                        Knowledge Base article (optional)
+                    </label>
+
+                    <select class="form-select mb-2"
+                            name="KnowledgeBaseArticleId"
+                            id="articleId">
+
+                        <option value="">No article</option>
+
+                        @foreach (var article in Model.Articles)
+                        {
+                            if (article.Id == Model.KnowledgeBaseArticleId)
+                            {
+                                <option value="@article.Id" selected>
+                                    @article.Title
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@article.Id">
+                                    @article.Title
+                                </option>
+                            }
+                        }
+                    </select>
+
+                    <p class="text-secondary small">
+                        Only active, published articles are shown.
+                        The Web API verifies article eligibility.
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary"
+                                type="submit">
+                            <i class="bi bi-chat-left-text me-2"></i>
+                            Generate customer reply
+                        </button>
+
+                        <button class="btn btn-outline-primary"
+                                type="submit"
+                                formaction="/tickets/@ticket.Id/ai/internal-note-draft">
+                            <i class="bi bi-journal-text me-2"></i>
+                            Generate internal note
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: AI Results -->
+    <div class="col-xl-7">
+
+        @if (Model.Analysis is not null)
+        {
+            var analysis = Model.Analysis.Analysis;
+
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+                <div class="card-header bg-white p-4">
+                    <h2 class="h5 fw-bold mb-0">
+                        Structured ticket analysis
+                    </h2>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <h3 class="h6 fw-bold">Problem</h3>
+                    <p class="text-break">@analysis.Problem</p>
+
+                    <h3 class="h6 fw-bold">Actions tried</h3>
+
+                    @if (analysis.ActionsTried.Count == 0)
+                    {
+                        <p class="text-secondary">
+                            No actions recorded.
+                        </p>
+                    }
+                    else
+                    {
+                        <ul>
+                            @foreach (var action in analysis.ActionsTried)
+                            {
+                                <li class="text-break">@action</li>
+                            }
+                        </ul>
+                    }
+
+                    <h3 class="h6 fw-bold">Next step</h3>
+                    <p class="text-break">@analysis.NextStep</p>
+
+                    <dl class="row gy-2 mb-3">
+
+                        <dt class="col-sm-5 text-secondary">
+                            Sentiment
+                        </dt>
+                        <dd class="col-sm-7">
+                            @analysis.Sentiment
+                        </dd>
+
+                        <dt class="col-sm-5 text-secondary">
+                            Suggested category
+                        </dt>
+                        <dd class="col-sm-7">
+                            @(analysis.SuggestedCategory ?? "Not suggested")
+                        </dd>
+
+                        <dt class="col-sm-5 text-secondary">
+                            Suggested priority
+                        </dt>
+                        <dd class="col-sm-7">
+                            @(analysis.SuggestedPriority ?? "Not suggested")
+                        </dd>
+
+                        <dt class="col-sm-5 text-secondary">
+                            Confirmed resolution date
+                        </dt>
+                        <dd class="col-sm-7">
+                            @(analysis.ConfirmedResolutionDate ?? "Not confirmed")
+                        </dd>
+
+                        <dt class="col-sm-5 text-secondary">
+                            Requires human review
+                        </dt>
+                        <dd class="col-sm-7">
+                            @(analysis.RequiresHumanReview ? "Yes" : "No")
+                        </dd>
+                    </dl>
+
+                    <!-- NEW: Apply AI Suggestions -->
+                    @if (ticket.StatusId != 5 &&
+                         (Model.Analysis.SuggestedCategoryId.HasValue ||
+                          Model.Analysis.SuggestedPriorityId.HasValue))
+                    {
+                        <div class="border rounded-3 p-3 mb-3">
+
+                            <h3 class="h6 fw-bold mb-2">
+                                Apply AI suggestions
+                            </h3>
+
+                            <p class="small text-secondary">
+                                Review the suggested Category and Priority
+                                on the Ticket Details page before saving.
+                            </p>
+
+                            <!-- GET only preselects values. It does not save. -->
+                            <form method="get"
+                                  action="/tickets/@ticket.Id">
+
+                                <input type="hidden"
+                                       name="applyAi"
+                                       value="true" />
+
+                                @if (Model.Analysis.SuggestedCategoryId.HasValue)
+                                {
+                                    <input type="hidden"
+                                           name="suggestedCategoryId"
+                                           value="@Model.Analysis.SuggestedCategoryId.Value" />
+                                }
+
+                                @if (Model.Analysis.SuggestedPriorityId.HasValue)
+                                {
+                                    <input type="hidden"
+                                           name="suggestedPriorityId"
+                                           value="@((int)Model.Analysis.SuggestedPriorityId.Value)" />
+                                }
+
+                                <button class="btn btn-success w-100"
+                                        type="submit">
+                                    <i class="bi bi-check2-square me-2"></i>
+                                    Apply Suggestions
+                                </button>
+                            </form>
+
+                            <p class="small text-secondary mt-2 mb-0">
+                                No changes are saved until you confirm
+                                them on Ticket Details.
+                            </p>
+                        </div>
+                    }
+
+                    <!-- AI Response Information -->
+                    <p class="text-secondary small mb-0">
+                        Provider: @Model.Analysis.Provider
+                        <br />
+                        Model: @Model.Analysis.Model
+                        <br />
+                        Tokens:
+                        @Model.Analysis.InputTokens input,
+                        @Model.Analysis.OutputTokens output,
+                        @Model.Analysis.TotalTokens total
+                    </p>
+                </div>
+            </div>
+        }
+
+        @if (Model.Draft is not null)
+        {
+            <!-- Editable AI Draft -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+                <div class="card-header bg-white p-4">
+                    <h2 class="h5 fw-bold mb-0">
+                        @Model.DraftTitle
+                    </h2>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Draft.Provider))
+                    {
+                        <p class="text-secondary small">
+                            Generated with @Model.Draft.Provider
+                            · @Model.Draft.Model
+                            · @Model.Draft.TotalTokens tokens
+                        </p>
+                    }
+
+                    @if (ticket.StatusId == 5)
+                    {
+                        <div class="alert alert-warning">
+                            This ticket is closed and cannot accept
+                            further comments.
+                        </div>
+                    }
+
+                    <form method="post"
+                          action="/tickets/@ticket.Id/ai/save-draft">
+
+                        @Html.AntiForgeryToken()
+
+                        <label class="form-label fw-semibold"
+                               for="approvedText">
+                            Review and edit the draft
+                        </label>
+
+                        <textarea id="approvedText"
+                                  name="ApprovedText"
+                                  class="form-control mb-3"
+                                  rows="9"
+                                  maxlength="1900"
+                                  required>@Model.Draft.DraftText</textarea>
+
+                        <label class="form-label fw-semibold"
+                               for="commentVisibility">
+                            Save as
+                        </label>
+
+                        <select id="commentVisibility"
+                                name="IsInternal"
+                                class="form-select mb-3">
+
+                            @if (Model.IsInternal)
+                            {
+                                <option value="true" selected>
+                                    Internal support comment
+                                </option>
+                                <option value="false">
+                                    Customer-visible comment
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="true">
+                                    Internal support comment
+                                </option>
+                                <option value="false" selected>
+                                    Customer-visible comment
+                                </option>
+                            }
+                        </select>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   value="true"
+                                   name="ConfirmCustomerVisible"
+                                   id="confirmCustomerVisible"
+                                   checked="@Model.ConfirmCustomerVisible" />
+
+                            <label class="form-check-label small"
+                                   for="confirmCustomerVisible">
+                                I confirm that any customer-visible
+                                comment is accurate and contains
+                                no confidential information.
+                            </label>
+                        </div>
+
+                        <p class="small text-secondary">
+                            Confirmation is required for customer-visible
+                            comments. Saving does not automatically send an email.
+                        </p>
+
+                        <button class="btn btn-success"
+                                type="submit"
+                                disabled="@(ticket.StatusId == 5)">
+                            <i class="bi bi-check2-circle me-2"></i>
+                            Save reviewed comment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+        else if (Model.Analysis is null)
+        {
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-5 text-center text-secondary">
+
+                    <i class="bi bi-stars fs-1 text-primary"></i>
+
+                    <h2 class="h5 fw-bold mt-3">
+                        AI results appear here
+                    </h2>
+
+                    <p class="mb-0">
+                        Analyze the ticket or generate a draft to begin.
+                    </p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

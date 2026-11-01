@@ -1,0 +1,8 @@
+<div class="row"><div class="col-lg-9 col-xl-7"><a [routerLink]="base" class="small text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to {{type==='products'?'products':'categories'}}</a>
+<h1 class="h2 fw-bold my-3">{{editing?'Edit':'Add'}} {{type==='products'?'product':'category'}}</h1>
+<div class="card shadow-sm border-0 rounded-4"><div class="card-body p-4 p-lg-5"><app-notice [message]="error()" />
+<form #form="ngForm" (ngSubmit)="save()"><div class="mb-3"><label for="name" class="form-label fw-semibold">{{type==='products'?'Product':'Category'}} name</label><input id="name" name="name" class="form-control" [(ngModel)]="model.name" required minlength="2" maxlength="150"></div>
+<div class="mb-3"><label for="description" class="form-label fw-semibold">Description</label><textarea id="description" name="description" class="form-control" rows="4" [(ngModel)]="model.description"></textarea></div>
+@if (editing) {<div class="form-check form-switch mb-4"><input id="active" name="active" type="checkbox" class="form-check-input" [(ngModel)]="model.isActive"><label class="form-check-label" for="active">Active</label></div>}
+<button type="submit" class="btn btn-primary px-4" [disabled]="form.invalid || saving() || loading()">{{saving()?'Saving...':editing?'Save changes':type==='products'?'Create product':'Create category'}}</button><a [routerLink]="base" class="btn btn-outline-secondary ms-2">Cancel</a>
+</form></div></div></div></div>

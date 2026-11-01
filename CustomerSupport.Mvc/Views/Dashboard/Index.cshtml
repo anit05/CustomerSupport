@@ -1,0 +1,19 @@
+@model DashboardPage
+@{ViewData["Title"]="Dashboard"; var customer=Model.Role=="Customer";}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div><span class="badge text-bg-primary mb-2">@(customer?"Customer workspace":Model.Role=="Administrator"?"Administrator workspace":"Support workspace")</span><h1 class="h2 fw-bold mb-1">Overview</h1><p class="text-secondary mb-0">Your support activity, from the live Customer Support API.</p></div>
+    @if(customer){<a href="/tickets/new" class="btn btn-primary px-4"><i class="bi bi-plus-circle me-2"></i>New ticket</a>}
+</div>
+@if(Model.CanShowTotals)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="card shadow-sm border-0 rounded-4 h-100"><div class="card-body p-4"><span class="text-secondary small">Total tickets</span><div class="d-flex justify-content-between align-items-center mt-2"><span class="h2 fw-bold mb-0">@Model.TotalTickets</span><i class="bi bi-ticket-detailed fs-3 text-primary"></i></div></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="card shadow-sm border-0 rounded-4 h-100"><div class="card-body p-4"><span class="text-secondary small">Open / assigned</span><div class="d-flex justify-content-between align-items-center mt-2"><span class="h2 fw-bold mb-0">@Model.OpenTickets</span><i class="bi bi-inbox fs-3 text-info"></i></div></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="card shadow-sm border-0 rounded-4 h-100"><div class="card-body p-4"><span class="text-secondary small">In progress</span><div class="d-flex justify-content-between align-items-center mt-2"><span class="h2 fw-bold mb-0">@Model.InProgressTickets</span><i class="bi bi-arrow-repeat fs-3 text-warning"></i></div></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="card shadow-sm border-0 rounded-4 h-100"><div class="card-body p-4"><span class="text-secondary small">Resolved / closed</span><div class="d-flex justify-content-between align-items-center mt-2"><span class="h2 fw-bold mb-0">@Model.ResolvedTickets</span><i class="bi bi-check-circle fs-3 text-success"></i></div></div></div></div>
+    </div>
+}
+<div class="card shadow-sm border-0 rounded-4"><div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center"><h2 class="h5 mb-0 fw-bold">Recent tickets</h2>
+    <a class="btn btn-outline-primary btn-sm" href="@(customer?"/tickets/my":Model.Role=="Administrator"?"/admin/tickets":"/support/tickets")">View all <i class="bi bi-arrow-right ms-1"></i></a></div>
+    <div class="card-body p-0">@await Html.PartialAsync("_TicketTable",Model.RecentTickets)</div>
+</div>

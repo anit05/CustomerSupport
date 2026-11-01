@@ -1,0 +1,6 @@
+@if (message()) {
+  <div class="alert rounded-3 d-flex align-items-start gap-2 shadow-sm" [class.alert-danger]="kind()==='danger'" [class.alert-success]="kind()==='success'" [class.alert-info]="kind()==='info'" role="alert">
+    <i class="bi fs-5" [class]="kind()==='success'?'bi-check-circle-fill':kind()==='info'?'bi-info-circle-fill':'bi-exclamation-triangle-fill'" aria-hidden="true"></i>
+    <span>{{message()}}</span>
+  </div>
+}

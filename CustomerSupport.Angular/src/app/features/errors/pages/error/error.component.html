@@ -1,0 +1,5 @@
+<div class="container-xl py-5"><div class="row justify-content-center py-4 py-lg-5"><div class="col-lg-8 col-xl-7"><div class="card border-0 shadow-sm rounded-4 overflow-hidden"><div class="card-body text-center p-4 p-md-5">
+  <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center p-4 mb-4"><i class="bi bi-signpost-split display-5" aria-hidden="true"></i></div>
+  <div class="fw-bold text-primary mb-2">ERROR {{code}}</div><h1 class="display-6 fw-bold mb-3">{{title}}</h1><p class="lead text-secondary mb-4">{{description}}</p>
+  <div class="border-top pt-4 mt-4"><a class="btn btn-primary btn-lg px-4" [routerLink]="auth.authenticated()?auth.home():'/login'"><i class="bi bi-house-door me-2" aria-hidden="true"></i>{{auth.authenticated()?'Back to dashboard':'Return to sign in'}}</a></div>
+  </div></div></div></div></div>

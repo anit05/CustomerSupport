@@ -1,0 +1,6 @@
+@model ErrorPage
+@{ViewData["Title"]=Model.Title;}
+<div class="row justify-content-center"><div class="col-lg-7 col-xl-5"><div class="card shadow-sm border-0 rounded-4 text-center mt-4"><div class="card-body p-5">
+    <i class="bi bi-exclamation-circle text-warning display-3"></i><p class="text-secondary mt-3 mb-0">Error @Model.Code</p><h1 class="h3 fw-bold mt-2">@Model.Title</h1><p class="text-secondary">@Model.Message</p>
+    <a href="/" class="btn btn-primary px-4 mt-2">Return to workspace</a>
+</div></div></div></div>

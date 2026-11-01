@@ -70,6 +70,17 @@ namespace CustomerSupport.API.ExceptionHandling
           message = unauthorizedException.Message;
           break;
 
+        // AI-related errors.
+        // This common exception can be used for all
+        // current and future AI operations.
+        case AIException:
+          statusCode = StatusCodes.Status502BadGateway;
+          // Return a safe message instead of exposing
+          // internal OpenAI errors or provider details.
+          message = "The AI service could not process your request. " +
+              "Please try again later.";
+          break;
+
         // Occurs when Entity Framework Core detects that
         // another request has already modified the same database record.
         case DbUpdateConcurrencyException:
@@ -132,3 +143,4 @@ namespace CustomerSupport.API.ExceptionHandling
     }
   }
 }
+

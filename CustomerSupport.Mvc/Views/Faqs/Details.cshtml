@@ -1,0 +1,5 @@
+@model Faq
+@{ViewData["Title"]="FAQ details";}
+<div class="row justify-content-center"><div class="col-xl-9"><a class="small text-decoration-none" href="/faqs"><i class="bi bi-arrow-left me-1"></i>All FAQs</a>
+<div class="card border-0 shadow-sm rounded-4 mt-3"><div class="card-body p-4 p-lg-5"><span class="badge text-bg-primary mb-3">@(Model.ProductName??"General")</span><h1 class="h3 fw-bold mb-4">@Model.Question</h1><p class="text-break" >@Model.Answer</p></div></div>
+</div></div>
