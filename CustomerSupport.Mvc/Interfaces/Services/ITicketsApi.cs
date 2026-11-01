@@ -17,6 +17,11 @@ namespace CustomerSupport.Mvc.Interfaces.Services
 
         Task<ApiResult<TicketDetails>> ChangeStatusAsync(int id, int status, string? remarks);
 
+        Task<ApiResult<TicketDetails>> UpdateClassificationAsync(
+            int id,
+            int? categoryId,
+            int priorityId);
+
         Task<ApiResult<TicketComment>> AddCommentAsync(int id, string content, bool internalOnly);
 
         Task<ApiResult<List<TicketAssignment>>> AssignmentsAsync(int id);

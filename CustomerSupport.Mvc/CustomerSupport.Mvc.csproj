@@ -4,5 +4,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <UserSecretsId>38a157c5-6116-49a7-8ab7-77415038ff29</UserSecretsId>
   </PropertyGroup>
 </Project>

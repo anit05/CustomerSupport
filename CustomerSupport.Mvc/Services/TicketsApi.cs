@@ -52,6 +52,26 @@ namespace CustomerSupport.Mvc.Services
             return _api.SendAsync<TicketDetails>(HttpMethod.Put, $"api/tickets/{id}/status", new { statusId = status, remarks });
         }
 
+
+        // Update the approved ticket Category and Priority.
+        public Task<ApiResult<TicketDetails>> UpdateClassificationAsync(
+            int id,
+            int? categoryId,
+            int priorityId)
+        {
+            // Call the new ticket classification endpoint.
+            // Our existing IApiClient sends the authenticated JWT.
+            return _api.SendAsync<TicketDetails>(
+                HttpMethod.Put,
+                $"api/tickets/{id}/classification",
+                new
+                {
+                    categoryId,
+                    priorityId
+                });
+        }
+
+
         public Task<ApiResult<TicketComment>> AddCommentAsync(int id, string content, bool internalOnly)
         {
             return _api.SendAsync<TicketComment>(HttpMethod.Post, $"api/tickets/{id}/comments", new { content, isInternal = internalOnly });
