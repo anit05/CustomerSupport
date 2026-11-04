@@ -4,22 +4,26 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CustomerSupport.Application.Extensions
 {
-    public static class ApplicationServiceExtensions
+  public static class ApplicationServiceExtensions
+  {
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-        {
-            services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<ITicketCategoryService, TicketCategoryService>();
-            services.AddScoped<IMasterDataService, MasterDataService>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<ITicketService, TicketService>();
+      services.AddScoped<IProductService, ProductService>();
+      services.AddScoped<ITicketCategoryService, TicketCategoryService>();
+      services.AddScoped<IMasterDataService, MasterDataService>();
+      services.AddScoped<IAuthService, AuthService>();
+      services.AddScoped<ITicketService, TicketService>();
+      // Register the Ticket Attachment Application Service.
+      services.AddScoped<ITicketAttachmentService, TicketAttachmentService>();
 
-            services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
-            services.AddScoped<IFAQService, FAQService>();
+      // Knowledge Base and FAQ Application Services.
+      services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
+      services.AddScoped<IFAQService, FAQService>();
 
-            // Register the Ticket Attachment Application Service.
-            services.AddScoped<ITicketAttachmentService, TicketAttachmentService>();
-            return services;
-        }
+      // One AI coordinator replaces the earlier experimental services.
+      services.AddScoped<ITicketAIService, TicketAIService>();
+
+      return services;
     }
+  }
 }

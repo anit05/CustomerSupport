@@ -93,8 +93,8 @@ namespace CustomerSupport.API
         });
       });
 
-      //OpenAI Registration
-      builder.Services.AddOpenAISetup(builder.Configuration);
+      // Register the configured AI provider behind IChatClient.
+      builder.Services.AddAIProviderSetup(builder.Configuration);
 
       var app = builder.Build();
 
